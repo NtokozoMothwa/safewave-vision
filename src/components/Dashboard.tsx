@@ -1,4 +1,6 @@
 
+import { Link } from 'react-router-dom';
+import { BarChart3 } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import VitalsDisplay from './VitalsDisplay';
 import AlertsPanel from './AlertsPanel';
@@ -17,7 +19,15 @@ const Dashboard: React.FC = () => {
         </AnimatedTransition>
         
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">Health Vitals</h2>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">Health Vitals</h2>
+            <Link 
+              to="/health-history" 
+              className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+            >
+              <BarChart3 size={14} /> View History
+            </Link>
+          </div>
           <VitalsDisplay />
         </div>
         
