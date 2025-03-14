@@ -85,12 +85,20 @@ const VitalsDisplay: React.FC = () => {
     const interval = setInterval(() => {
       // Random heart rate changes
       const newHrValue = Math.floor(Math.random() * 15) + 65;
-      const newHrStatus = 
-        newHrValue > 100 ? "danger" : 
-        newHrValue > 90 ? "warning" : "normal";
-      const newHrTrend = 
-        newHrValue > parseInt(heartRate.value) ? "up" : 
-        newHrValue < parseInt(heartRate.value) ? "down" : "stable";
+      let newHrStatus: 'normal' | 'warning' | 'danger' = 'normal';
+      
+      if (newHrValue > 100) {
+        newHrStatus = 'danger';
+      } else if (newHrValue > 90) {
+        newHrStatus = 'warning';
+      }
+      
+      let newHrTrend: 'up' | 'down' | 'stable' = 'stable';
+      if (newHrValue > parseInt(heartRate.value)) {
+        newHrTrend = 'up';
+      } else if (newHrValue < parseInt(heartRate.value)) {
+        newHrTrend = 'down';
+      }
       
       if (newHrStatus === "danger" && heartRate.status !== "danger") {
         toast({
@@ -100,30 +108,46 @@ const VitalsDisplay: React.FC = () => {
         });
       }
       
-      setHeartRate({ value: newHrValue.toString(), status: newHrStatus as any, trend: newHrTrend as any });
+      setHeartRate({ value: newHrValue.toString(), status: newHrStatus, trend: newHrTrend });
       
       // Random oxygen changes (less frequent)
       if (Math.random() > 0.7) {
         const newO2Value = Math.floor(Math.random() * 5) + 95;
-        const newO2Status = newO2Value < 95 ? "warning" : "normal";
-        const newO2Trend = 
-          newO2Value > parseInt(oxygenLevel.value) ? "up" : 
-          newO2Value < parseInt(oxygenLevel.value) ? "down" : "stable";
+        let newO2Status: 'normal' | 'warning' | 'danger' = 'normal';
         
-        setOxygenLevel({ value: newO2Value.toString(), status: newO2Status as any, trend: newO2Trend as any });
+        if (newO2Value < 95) {
+          newO2Status = 'warning';
+        }
+        
+        let newO2Trend: 'up' | 'down' | 'stable' = 'stable';
+        if (newO2Value > parseInt(oxygenLevel.value)) {
+          newO2Trend = 'up';
+        } else if (newO2Value < parseInt(oxygenLevel.value)) {
+          newO2Trend = 'down';
+        }
+        
+        setOxygenLevel({ value: newO2Value.toString(), status: newO2Status, trend: newO2Trend });
       }
       
       // Random temperature changes (less frequent)
       if (Math.random() > 0.8) {
         const newTempValue = (Math.random() * 1.5 + 36).toFixed(1);
-        const newTempStatus = 
-          parseFloat(newTempValue) > 37.5 ? "danger" : 
-          parseFloat(newTempValue) > 37.0 ? "warning" : "normal";
-        const newTempTrend = 
-          parseFloat(newTempValue) > parseFloat(temperature.value) ? "up" : 
-          parseFloat(newTempValue) < parseFloat(temperature.value) ? "down" : "stable";
+        let newTempStatus: 'normal' | 'warning' | 'danger' = 'normal';
         
-        setTemperature({ value: newTempValue, status: newTempStatus as any, trend: newTempTrend as any });
+        if (parseFloat(newTempValue) > 37.5) {
+          newTempStatus = 'danger';
+        } else if (parseFloat(newTempValue) > 37.0) {
+          newTempStatus = 'warning';
+        }
+        
+        let newTempTrend: 'up' | 'down' | 'stable' = 'stable';
+        if (parseFloat(newTempValue) > parseFloat(temperature.value)) {
+          newTempTrend = 'up';
+        } else if (parseFloat(newTempValue) < parseFloat(temperature.value)) {
+          newTempTrend = 'down';
+        }
+        
+        setTemperature({ value: newTempValue, status: newTempStatus, trend: newTempTrend });
       }
       
       // Random stress level changes (less frequent)
@@ -131,14 +155,23 @@ const VitalsDisplay: React.FC = () => {
         const stressOptions = ["Low", "Medium", "High"];
         const stressIndex = Math.floor(Math.random() * 3);
         const newStressValue = stressOptions[stressIndex];
-        const newStressStatus = 
-          newStressValue === "High" ? "danger" : 
-          newStressValue === "Medium" ? "warning" : "normal";
-        const newStressTrend = 
-          stressIndex > stressOptions.indexOf(stressLevel.value) ? "up" : 
-          stressIndex < stressOptions.indexOf(stressLevel.value) ? "down" : "stable";
+        let newStressStatus: 'normal' | 'warning' | 'danger' = 'normal';
         
-        setStressLevel({ value: newStressValue, status: newStressStatus as any, trend: newStressTrend as any });
+        if (newStressValue === "High") {
+          newStressStatus = 'danger';
+        } else if (newStressValue === "Medium") {
+          newStressStatus = 'warning';
+        }
+        
+        let newStressTrend: 'up' | 'down' | 'stable' = 'stable';
+        const currentIndex = stressOptions.indexOf(stressLevel.value as string);
+        if (stressIndex > currentIndex) {
+          newStressTrend = 'up';
+        } else if (stressIndex < currentIndex) {
+          newStressTrend = 'down';
+        }
+        
+        setStressLevel({ value: newStressValue, status: newStressStatus, trend: newStressTrend });
       }
     }, 3000); // Update every 3 seconds
     
