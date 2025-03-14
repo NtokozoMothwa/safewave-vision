@@ -75,10 +75,45 @@ const VitalCard: React.FC<VitalProps> = ({
 
 const VitalsDisplay: React.FC = () => {
   const { toast } = useToast();
-  const [heartRate, setHeartRate] = useState({ value: "72", status: "normal", trend: "stable" as const });
-  const [oxygenLevel, setOxygenLevel] = useState({ value: "98", status: "normal", trend: "stable" as const });
-  const [temperature, setTemperature] = useState({ value: "36.5", status: "normal", trend: "stable" as const });
-  const [stressLevel, setStressLevel] = useState({ value: "Medium", status: "warning" as const, trend: "up" as const });
+  const [heartRate, setHeartRate] = useState<{ 
+    value: string; 
+    status: 'normal' | 'warning' | 'danger'; 
+    trend: 'up' | 'down' | 'stable' 
+  }>({ 
+    value: "72", 
+    status: "normal", 
+    trend: "stable" 
+  });
+  
+  const [oxygenLevel, setOxygenLevel] = useState<{
+    value: string;
+    status: 'normal' | 'warning' | 'danger';
+    trend: 'up' | 'down' | 'stable'
+  }>({
+    value: "98",
+    status: "normal",
+    trend: "stable"
+  });
+  
+  const [temperature, setTemperature] = useState<{
+    value: string;
+    status: 'normal' | 'warning' | 'danger';
+    trend: 'up' | 'down' | 'stable'
+  }>({
+    value: "36.5",
+    status: "normal",
+    trend: "stable"
+  });
+  
+  const [stressLevel, setStressLevel] = useState<{
+    value: string;
+    status: 'normal' | 'warning' | 'danger';
+    trend: 'up' | 'down' | 'stable'
+  }>({
+    value: "Medium",
+    status: "warning",
+    trend: "up"
+  });
 
   // Simulate changing vitals for demo purposes
   useEffect(() => {
@@ -155,20 +190,24 @@ const VitalsDisplay: React.FC = () => {
         const stressOptions = ["Low", "Medium", "High"];
         const stressIndex = Math.floor(Math.random() * 3);
         const newStressValue = stressOptions[stressIndex];
-        let newStressStatus: 'normal' | 'warning' | 'danger' = 'normal';
+        let newStressStatus: 'normal' | 'warning' | 'danger';
         
         if (newStressValue === "High") {
           newStressStatus = 'danger';
         } else if (newStressValue === "Medium") {
           newStressStatus = 'warning';
+        } else {
+          newStressStatus = 'normal';
         }
         
-        let newStressTrend: 'up' | 'down' | 'stable' = 'stable';
-        const currentIndex = stressOptions.indexOf(stressLevel.value as string);
+        let newStressTrend: 'up' | 'down' | 'stable';
+        const currentIndex = stressOptions.indexOf(stressLevel.value);
         if (stressIndex > currentIndex) {
           newStressTrend = 'up';
         } else if (stressIndex < currentIndex) {
           newStressTrend = 'down';
+        } else {
+          newStressTrend = 'stable';
         }
         
         setStressLevel({ value: newStressValue, status: newStressStatus, trend: newStressTrend });
