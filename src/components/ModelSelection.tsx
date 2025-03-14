@@ -1,5 +1,5 @@
 
-import { CheckIcon, ChevronRight, ShieldIcon, HeartPulse, Child, Gem } from 'lucide-react';
+import { CheckIcon, ChevronRight, ShieldIcon, HeartPulse, Baby, Gem } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
@@ -108,7 +108,7 @@ const ModelSelection: React.FC = () => {
         subtitle="Child Safety Focus"
         description="Designed specifically for children with playful interface and enhanced location tracking."
         color="bg-safesphere-warning"
-        icon={<Child size={20} className="text-white" />}
+        icon={<Baby size={20} className="text-white" />}
         features={[
           "Real-time location updates",
           "Safe zone alerts",

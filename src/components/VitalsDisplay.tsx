@@ -1,5 +1,5 @@
 
-import { ActivitySquare, Droplet, Heart, ThermometerSnow } from 'lucide-react';
+import { ActivitySquare, Droplet, Heart, Thermometer } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import { cn } from '@/lib/utils';
 
@@ -86,7 +86,7 @@ const VitalsDisplay: React.FC = () => {
         title="Temperature"
         value="36.5"
         unit="°C"
-        icon={<ThermometerSnow size={16} className="text-safesphere-success" />}
+        icon={<Thermometer size={16} className="text-safesphere-success" />}
         status="normal"
         trend="stable"
         delay={0.3}
