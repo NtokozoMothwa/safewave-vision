@@ -1,69 +1,59 @@
-# Welcome to your Lovable project
+# SafeWave Vision
 
-## Project info
+🚀 **SafeWave Vision** is an AI-powered security platform designed to enhance real-time safety monitoring, threat detection, and emergency response using advanced AI, GPS tracking, and user-centric safety features.
 
-**URL**: https://lovable.dev/projects/c9479a7f-14c4-4cdf-9973-9e61fce15846
+## 🌟 Features
 
-## How can I edit this code?
+### ✅ Implemented Features
+- **Real-Time Location Tracking** 📍 – Monitors device location and movement.
+- **Automated Emergency Alerts** 🚨 – Sends alerts during emergencies.
+- **User & Device Management** 🔐 – Allows users to configure security preferences.
+- **Cross-Platform Compatibility** 📱 – Works on multiple devices.
+- **Secure Data Handling** 🔑 – Uses encryption for privacy and security.
 
-There are several ways of editing your application.
+### 🔄 Planned Features
+- **AI-Powered Threat Detection** 🤖 – Predicts risks based on behavior analysis.
+- **Health & Safety Monitoring** ❤️ – Tracks heart rate, fall detection, and oxygen levels.
+- **API Integrations** 🔗 – Seamless integration with security systems.
 
-**Use Lovable**
+## 🛠️ Tech Stack
+- **Frontend:** React.js, Tailwind CSS
+- **Backend:** Node.js (Express.js)
+- **Database:** Firebase / MongoDB
+- **AI/ML:** TensorFlow, OpenCV (Planned)
+- **Security:** End-to-End Encryption, OAuth2
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c9479a7f-14c4-4cdf-9973-9e61fce15846) and start prompting.
+## 🚀 Installation Guide
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/NtokozoMothwa/safewave-vision.git
+   cd safewave-vision
+   ```
+2. **Install Dependencies:**
+   ```bash
+   npm install
+   ```
+3. **Start the Development Server:**
+   ```bash
+   npm run dev
+   ```
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📖 Usage Instructions
+1. **Register/Login** – Create an account or sign in.
+2. **Configure Settings** – Set up location tracking, alerts, and security preferences.
+3. **Monitor in Real-Time** – View live updates and emergency alerts.
 
-**Use your preferred IDE**
+## 📌 Roadmap
+- ✅ MVP Release (Current Version)
+- 🔄 AI/ML Integration (Upcoming)
+- 🔄 Wearable Device Integration (Upcoming)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🤝 Contributing
+We welcome contributions! Feel free to fork the repo, create a feature branch, and submit a pull request.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📧 Contact
+For inquiries, reach out to [Ntokozo Mothwa](mailto:your-email@example.com) or visit our GitHub Issues page.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c9479a7f-14c4-4cdf-9973-9e61fce15846) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Made with ❤️ by the SafeWave Vision Team.
