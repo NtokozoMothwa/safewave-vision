@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Models from "./pages/Models";
 import Settings from "./pages/Settings";
 import HealthHistory from "./pages/HealthHistory";
+import GeofencingSettings from "./pages/GeofencingSettings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/models" element={<Models />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/health-history" element={<HealthHistory />} />
+            <Route path="/geofencing" element={<GeofencingSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
