@@ -3,12 +3,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Models from "./pages/Models";
 import Settings from "./pages/Settings";
 import HealthHistory from "./pages/HealthHistory";
 import GeofencingSettings from "./pages/GeofencingSettings";
+import AdminDashboard from "./pages/AdminDashboard";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -22,29 +25,57 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-right" theme="dark" toastOptions={{
-          classNames: {
-            toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
-            title: "text-safesphere-white",
-            description: "text-safesphere-white-muted/70",
-            actionButton: "bg-safesphere-red text-white",
-            cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
-            closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
-          }
-        }} />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/models" element={<Models />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/health-history" element={<HealthHistory />} />
-            <Route path="/geofencing" element={<GeofencingSettings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-right" theme="dark" toastOptions={{
+            classNames: {
+              toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
+              title: "text-safesphere-white",
+              description: "text-safesphere-white-muted/70",
+              actionButton: "bg-safesphere-red text-white",
+              cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
+              closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
+            }
+          }} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={
+                <RequireAuth>
+                  <Index />
+                </RequireAuth>
+              } />
+              <Route path="/models" element={
+                <RequireAuth>
+                  <Models />
+                </RequireAuth>
+              } />
+              <Route path="/settings" element={
+                <RequireAuth>
+                  <Settings />
+                </RequireAuth>
+              } />
+              <Route path="/health-history" element={
+                <RequireAuth>
+                  <HealthHistory />
+                </RequireAuth>
+              } />
+              <Route path="/geofencing" element={
+                <RequireAuth>
+                  <GeofencingSettings />
+                </RequireAuth>
+              } />
+              <Route path="/admin" element={
+                <RequireAdmin>
+                  <AdminDashboard />
+                </RequireAdmin>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

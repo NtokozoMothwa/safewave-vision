@@ -1,12 +1,22 @@
 
-import { Bell, Settings, User } from 'lucide-react';
+import { Bell, Settings, User, LogOut, ShieldAlert } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import AnimatedTransition from './AnimatedTransition';
+import { useAuth } from '@/context/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const location = useLocation();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   
   return (
     <AnimatedTransition 
@@ -36,19 +46,65 @@ const Header = () => {
           <Link to="/settings" className={cn("nav-link", location.pathname === "/settings" && "active")}>
             Settings
           </Link>
+          {isAdmin && (
+            <Link to="/admin" className={cn("nav-link", location.pathname === "/admin" && "active")}>
+              Admin
+            </Link>
+          )}
         </nav>
         
         <div className="flex items-center space-x-1">
-          <button className="p-2 rounded-full button-hover relative" aria-label="Notifications">
-            <Bell size={20} />
-            <Badge className="absolute top-0 right-0 h-2 w-2 p-0 bg-safesphere-red" />
-          </button>
-          <Link to="/settings" className="p-2 rounded-full button-hover" aria-label="Settings">
-            <Settings size={20} />
-          </Link>
-          <button className="p-2 rounded-full button-hover" aria-label="User profile">
-            <User size={20} />
-          </button>
+          {isAuthenticated ? (
+            <>
+              <button className="p-2 rounded-full button-hover relative" aria-label="Notifications">
+                <Bell size={20} />
+                <Badge className="absolute top-0 right-0 h-2 w-2 p-0 bg-safesphere-red" />
+              </button>
+              <Link to="/settings" className="p-2 rounded-full button-hover" aria-label="Settings">
+                <Settings size={20} />
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="p-2 rounded-full button-hover" aria-label="User profile">
+                  <User size={20} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-safesphere-dark-card border-white/10 text-safesphere-white">
+                  <DropdownMenuLabel className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-safesphere-dark-hover flex items-center justify-center">
+                      <User size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{user?.name}</p>
+                      <p className="text-xs text-safesphere-white-muted/60">{user?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  {isAdmin && (
+                    <DropdownMenuItem as={Link} to="/admin" className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover">
+                      <ShieldAlert size={16} className="text-safesphere-purple" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem as={Link} to="/settings" className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover">
+                    <Settings size={16} />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem 
+                    onClick={logout}
+                    className="cursor-pointer flex items-center gap-2 text-safesphere-red hover:bg-safesphere-dark-hover"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <Link to="/login" className="flex items-center px-4 py-2 rounded-md bg-safesphere-red hover:bg-safesphere-red-light text-white">
+              <LogOut size={16} className="mr-2" />
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </AnimatedTransition>
