@@ -1,3 +1,4 @@
+
 # SafeWave Vision
 
 🚀 **SafeWave Vision** is an AI-powered security platform designed to enhance real-time safety monitoring, threat detection, and emergency response using advanced AI, GPS tracking, and user-centric safety features.
@@ -10,18 +11,32 @@
 - **User & Device Management** 🔐 – Allows users to configure security preferences.
 - **Cross-Platform Compatibility** 📱 – Works on multiple devices.
 - **Secure Data Handling** 🔑 – Uses encryption for privacy and security.
+- **Health Tracking** ❤️ – Monitors vital signs like heart rate, oxygen levels, and temperature.
+- **GPS Tracking & Geofencing** 🗺️ – Provides real-time location data and safe zone setup.
+- **AI-Powered Safety Alerts** 🤖 – Uses AI to detect potential health and safety issues.
 
 ### 🔄 Planned Features
-- **AI-Powered Threat Detection** 🤖 – Predicts risks based on behavior analysis.
-- **Health & Safety Monitoring** ❤️ – Tracks heart rate, fall detection, and oxygen levels.
-- **API Integrations** 🔗 – Seamless integration with security systems.
+- **Advanced AI Threat Detection** 🔍 – Enhanced risk prediction based on behavior analysis.
+- **Additional API Integrations** 🔗 – Seamless integration with more security systems.
 
 ## 🛠️ Tech Stack
-- **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js (Express.js)
-- **Database:** Firebase / MongoDB
-- **AI/ML:** TensorFlow, OpenCV (Planned)
-- **Security:** End-to-End Encryption, OAuth2
+### Frontend
+- **Web:** React.js, Tailwind CSS
+- **Mobile:** React Native / Flutter (planned)
+
+### Backend 
+- **Server:** Node.js (Express.js) / Firebase
+- **Database:** PostgreSQL / MongoDB
+- **AI Integration:** Python with TensorFlow for predictive health tracking
+
+### Cloud & Infrastructure
+- **Platforms:** Google Cloud / AWS for real-time data storage
+- **IoT Services:** For wearable device connectivity
+
+### Security
+- **Encryption:** End-to-end encryption
+- **Authentication:** OAuth 2.0
+- **Compliance:** GDPR and HIPAA standards
 
 ## 🚀 Installation Guide
 1. **Clone the Repository:**
@@ -44,9 +59,15 @@
 3. **Monitor in Real-Time** – View live updates and emergency alerts.
 
 ## 📌 Roadmap
-- ✅ MVP Release (Current Version)
-- 🔄 AI/ML Integration (Upcoming)
-- 🔄 Wearable Device Integration (Upcoming)
+- ✅ Develop a working UI with React
+- ✅ Implement basic health tracking (mock biometric data)
+- ✅ Connect GPS tracking & geofencing (Google Maps API)
+- ✅ Add AI-powered safety alerts (basic AI model)
+- ✅ Launch a web dashboard for emergency contacts & caregivers
+- 🔄 Mobile app development with React Native
+- 🔄 Backend implementation with Firebase/Node.js
+- 🔄 Advanced AI integration with TensorFlow
+- 🔄 Cloud infrastructure setup
 
 ## 🤝 Contributing
 We welcome contributions! Feel free to fork the repo, create a feature branch, and submit a pull request.

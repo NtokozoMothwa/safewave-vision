@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { BarChart3, ThermometerSnowflake, MapPin, Navigation } from 'lucide-react';
+import { BarChart3, ThermometerSnowflake, MapPin, Navigation, Code } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import VitalsDisplay from './VitalsDisplay';
 import AlertsPanel from './AlertsPanel';
@@ -11,6 +11,7 @@ import VoiceCommand from './VoiceCommand';
 import LuxuryModeToggle from './LuxuryModeToggle';
 import LocationTracking from './LocationTracking';
 import GeofencingMap from './GeofencingMap';
+import TechStack from './TechStack';
 
 const Dashboard: React.FC = () => {
   return (
@@ -72,6 +73,16 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <PanicButton />
           <LuxuryModeToggle />
+        </div>
+        
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">Technology Stack</h2>
+            <div className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60">
+              <Code size={14} /> Current Implementation
+            </div>
+          </div>
+          <TechStack />
         </div>
       </div>
     </AnimatedTransition>
