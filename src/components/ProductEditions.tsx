@@ -1,5 +1,5 @@
 
-import { Child, Briefcase, Heart, Crown, Star, ChevronRight } from 'lucide-react';
+import { Briefcase, Heart, Crown, Star, ChevronRight, Baby } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,7 @@ const ProductEditions: React.FC = () => {
       id: 'kiddies',
       name: 'SafeSphere KIDDIES',
       description: 'Kid-friendly design with parental controls & school safety',
-      icon: <Child className="h-6 w-6" />,
+      icon: <Baby className="h-6 w-6" />,
       color: 'bg-safesphere-success',
       features: [
         { name: 'School Geofencing', included: true },
