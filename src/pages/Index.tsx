@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import Header from '@/components/Header';
 import Dashboard from '@/components/Dashboard';
-import ProductEditions from '@/components/ProductEditions';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -23,7 +22,6 @@ const Index = () => {
       <Header />
       <div className="max-w-7xl mx-auto px-4 pt-20 pb-10">
         <Dashboard />
-        <ProductEditions />
       </div>
     </div>
   );

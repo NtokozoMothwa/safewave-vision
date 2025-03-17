@@ -16,6 +16,7 @@ import FallDetection from './FallDetection';
 import PredictiveInsights from './PredictiveInsights';
 import SecurityControls from './SecurityControls';
 import UserGuidePanel from './UserGuidePanel';
+import ProductEditions from './ProductEditions';
 
 const Dashboard: React.FC = () => {
   return (
@@ -96,6 +97,19 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <SecurityControls />
+        </div>
+        
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">Plan & Subscription</h2>
+            <Link 
+              to="/models" 
+              className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+            >
+              <Navigation size={14} /> Explore All Models
+            </Link>
+          </div>
+          <ProductEditions />
         </div>
         
         <div className="mb-6">
