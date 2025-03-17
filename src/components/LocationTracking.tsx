@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import { MapPin, Navigation, AlertTriangle } from 'lucide-react';
+import { MapPin, Navigation, AlertTriangle, Shield, Clock, Settings, User } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 interface Coordinates {
   lat: number;
@@ -16,81 +17,62 @@ interface SafeZone {
   center: Coordinates;
   radius: number; // in meters
   active: boolean;
+  trusted: boolean; // For trusted locations like home
+}
+
+interface LocationEvent {
+  timestamp: Date;
+  coordinates: Coordinates;
+  type: 'zone_exit' | 'zone_enter' | 'emergency';
+  zone?: string;
 }
 
 const LocationTracking: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
   const [locationHistory, setLocationHistory] = useState<Coordinates[]>([]);
+  const [locationEvents, setLocationEvents] = useState<LocationEvent[]>([]);
   const [isTracking, setIsTracking] = useState(true);
+  const [trackingAccuracy, setTrackingAccuracy] = useState<'high' | 'medium' | 'low'>('high');
+  const [batteryLevel, setBatteryLevel] = useState(85);
   const [safeZones, setSafeZones] = useState<SafeZone[]>([
     {
       id: 'home',
       name: 'Home',
       center: { lat: 34.0522, lng: -118.2437 },
       radius: 100,
-      active: true
+      active: true,
+      trusted: true
     },
     {
       id: 'work',
       name: 'Workplace',
       center: { lat: 34.0622, lng: -118.2337 },
       radius: 150,
-      active: true
+      active: true,
+      trusted: true
     },
     {
       id: 'hospital',
       name: 'Hospital',
       center: { lat: 34.0722, lng: -118.2537 },
       radius: 200,
-      active: true
+      active: true,
+      trusted: true
+    },
+    {
+      id: 'gym',
+      name: 'Gym',
+      center: { lat: 34.0622, lng: -118.2637 },
+      radius: 80,
+      active: true,
+      trusted: false
     }
   ]);
   
   const [isOutsideSafeZone, setIsOutsideSafeZone] = useState(false);
-
-  // Simulate getting current location
-  useEffect(() => {
-    if (!isTracking) return;
-    
-    // This simulates location updates (in a real app, you'd use the Geolocation API)
-    const intervalId = setInterval(() => {
-      // Generate a random location near Los Angeles for simulation
-      const randomLat = 34.0522 + (Math.random() - 0.5) * 0.02;
-      const randomLng = -118.2437 + (Math.random() - 0.5) * 0.02;
-      
-      const newLocation = {
-        lat: randomLat,
-        lng: randomLng
-      };
-      
-      setCurrentLocation(newLocation);
-      setLocationHistory(prev => [...prev.slice(-19), newLocation]);
-      
-      // Check if the new location is outside all active safe zones
-      const outsideAllZones = safeZones
-        .filter(zone => zone.active)
-        .every(zone => {
-          const distance = calculateDistance(newLocation, zone.center);
-          return distance > zone.radius;
-        });
-      
-      if (outsideAllZones && !isOutsideSafeZone) {
-        setIsOutsideSafeZone(true);
-        // Alert the user that they've left all safe zones
-        toast.warning("Safety Alert", {
-          description: "You have left all safe zones!",
-          action: {
-            label: "View",
-            onClick: () => console.log("Viewed alert")
-          },
-        });
-      } else if (!outsideAllZones && isOutsideSafeZone) {
-        setIsOutsideSafeZone(false);
-      }
-    }, 5000); // Update every 5 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [isTracking, safeZones, isOutsideSafeZone]);
+  const [isOutsideTrustedZone, setIsOutsideTrustedZone] = useState(false);
+  const [timeOutsideSafeZone, setTimeOutsideSafeZone] = useState(0);
+  const [emergencyModeActive, setEmergencyModeActive] = useState(false);
 
   // Calculate distance between two points using Haversine formula
   const calculateDistance = (point1: Coordinates, point2: Coordinates): number => {
@@ -107,6 +89,155 @@ const LocationTracking: React.FC = () => {
 
     return R * c; // Distance in meters
   };
+  
+  // Function to check if point is in any active safe zone
+  const isInActiveSafeZone = (point: Coordinates): { inZone: boolean; zoneName?: string } => {
+    for (const zone of safeZones.filter(z => z.active)) {
+      const distance = calculateDistance(point, zone.center);
+      if (distance <= zone.radius) {
+        return { inZone: true, zoneName: zone.name };
+      }
+    }
+    return { inZone: false };
+  };
+  
+  // Function to check if point is in any trusted safe zone
+  const isInTrustedZone = (point: Coordinates): boolean => {
+    return safeZones
+      .filter(z => z.active && z.trusted)
+      .some(zone => {
+        const distance = calculateDistance(point, zone.center);
+        return distance <= zone.radius;
+      });
+  };
+
+  // Simulate getting current location
+  useEffect(() => {
+    if (!isTracking) return;
+    
+    // Set initial accuracy randomly for simulation
+    const randomAccuracy = Math.random();
+    if (randomAccuracy > 0.7) setTrackingAccuracy('high');
+    else if (randomAccuracy > 0.3) setTrackingAccuracy('medium');
+    else setTrackingAccuracy('low');
+    
+    // This simulates location updates (in a real app, you'd use the Geolocation API)
+    const intervalId = setInterval(() => {
+      // Generate a random location near Los Angeles for simulation
+      const randomLat = 34.0522 + (Math.random() - 0.5) * 0.02;
+      const randomLng = -118.2437 + (Math.random() - 0.5) * 0.02;
+      
+      const newLocation = {
+        lat: randomLat,
+        lng: randomLng
+      };
+      
+      // Decrease battery over time
+      setBatteryLevel(prev => Math.max(0, prev - 0.1));
+      
+      // Update tracking accuracy randomly
+      if (Math.random() > 0.9) {
+        const newAccuracy = Math.random();
+        if (newAccuracy > 0.7) setTrackingAccuracy('high');
+        else if (newAccuracy > 0.3) setTrackingAccuracy('medium');
+        else setTrackingAccuracy('low');
+      }
+      
+      setCurrentLocation(newLocation);
+      setLocationHistory(prev => [...prev.slice(-19), newLocation]);
+      
+      // Check if the new location is inside any active safe zone
+      const safeZoneCheck = isInActiveSafeZone(newLocation);
+      const inTrustedZone = isInTrustedZone(newLocation);
+      
+      // Handle safe zone state changes
+      if (!safeZoneCheck.inZone && !isOutsideSafeZone) {
+        // Just left safe zone
+        setIsOutsideSafeZone(true);
+        setTimeOutsideSafeZone(0);
+        
+        // Add event to history
+        setLocationEvents(prev => [
+          {
+            timestamp: new Date(),
+            coordinates: newLocation,
+            type: 'zone_exit'
+          },
+          ...prev.slice(0, 9)
+        ]);
+        
+        // Alert the user that they've left all safe zones
+        toast.warning("Safety Alert", {
+          description: "You have left all safe zones!",
+          action: {
+            label: "View",
+            onClick: () => console.log("Viewed alert")
+          },
+        });
+      } else if (safeZoneCheck.inZone && isOutsideSafeZone) {
+        // Just entered safe zone
+        setIsOutsideSafeZone(false);
+        setTimeOutsideSafeZone(0);
+        
+        // Add event to history
+        setLocationEvents(prev => [
+          {
+            timestamp: new Date(),
+            coordinates: newLocation,
+            type: 'zone_enter',
+            zone: safeZoneCheck.zoneName
+          },
+          ...prev.slice(0, 9)
+        ]);
+        
+        // Alert the user that they've entered a safe zone
+        toast.success("Safety Alert", {
+          description: `You have entered ${safeZoneCheck.zoneName} safe zone.`,
+        });
+      }
+      
+      // Track trusted zone status separately
+      if (!inTrustedZone && !isOutsideTrustedZone) {
+        setIsOutsideTrustedZone(true);
+      } else if (inTrustedZone && isOutsideTrustedZone) {
+        setIsOutsideTrustedZone(false);
+      }
+      
+      // If outside safe zone, increment time counter
+      if (isOutsideSafeZone) {
+        setTimeOutsideSafeZone(prev => prev + 5);
+        
+        // Trigger extended absence alert
+        if (timeOutsideSafeZone === 55) { // Just about to hit 1 minute
+          toast.error("Extended Absence Alert", {
+            description: "You've been outside safe zones for 1 minute. Emergency contacts will be notified if this continues.",
+          });
+        }
+        
+        // Emergency mode for very long absences
+        if (timeOutsideSafeZone >= 300 && !emergencyModeActive) { // 5+ minutes outside
+          setEmergencyModeActive(true);
+          
+          // Add emergency event
+          setLocationEvents(prev => [
+            {
+              timestamp: new Date(),
+              coordinates: newLocation,
+              type: 'emergency'
+            },
+            ...prev.slice(0, 9)
+          ]);
+          
+          toast.error("EMERGENCY PROTOCOL ACTIVATED", {
+            description: "You've been outside safe zones for too long. Emergency contacts have been notified of your location.",
+            duration: 10000,
+          });
+        }
+      }
+    }, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(intervalId);
+  }, [isTracking, safeZones, isOutsideSafeZone, isOutsideTrustedZone, timeOutsideSafeZone, emergencyModeActive]);
 
   const toggleTracking = () => {
     setIsTracking(prev => !prev);
@@ -119,6 +250,31 @@ const LocationTracking: React.FC = () => {
         zone.id === id ? { ...zone, active: !zone.active } : zone
       )
     );
+    
+    const zone = safeZones.find(z => z.id === id);
+    if (zone) {
+      toast(`${zone.active ? "Disabled" : "Enabled"} ${zone.name} safe zone`);
+    }
+  };
+  
+  const formatTimeOutside = (seconds: number): string => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+  
+  const getLocationEventLabel = (event: LocationEvent): string => {
+    switch(event.type) {
+      case 'zone_enter':
+        return `Entered ${event.zone} zone`;
+      case 'zone_exit':
+        return 'Left safe zone';
+      case 'emergency':
+        return 'EMERGENCY ALERT';
+      default:
+        return 'Location event';
+    }
   };
 
   return (
@@ -129,6 +285,11 @@ const LocationTracking: React.FC = () => {
           {isOutsideSafeZone && (
             <div className="px-1.5 py-0.5 rounded-full bg-safesphere-red/10 border border-safesphere-red/20 text-[10px] text-safesphere-red flex items-center animate-pulse">
               <AlertTriangle size={10} className="mr-0.5" /> OUTSIDE SAFE ZONE
+            </div>
+          )}
+          {emergencyModeActive && (
+            <div className="px-1.5 py-0.5 rounded-full bg-safesphere-red/10 border border-safesphere-red/20 text-[10px] text-safesphere-red flex items-center animate-pulse">
+              <Shield size={10} className="mr-0.5" /> EMERGENCY MODE
             </div>
           )}
         </div>
@@ -158,27 +319,125 @@ const LocationTracking: React.FC = () => {
             </div>
           </div>
         )}
+        
+        {/* Location accuracy indicator */}
+        <div className="absolute top-2 right-2 bg-safesphere-dark-hover p-2 rounded-md text-xs flex items-center gap-2">
+          <div className={cn(
+            "h-2 w-2 rounded-full",
+            trackingAccuracy === 'high' ? "bg-safesphere-success" :
+            trackingAccuracy === 'medium' ? "bg-safesphere-warning" :
+            "bg-safesphere-red"
+          )}></div>
+          <span>
+            {trackingAccuracy === 'high' ? "High" :
+             trackingAccuracy === 'medium' ? "Medium" :
+             "Low"} Accuracy
+          </span>
+        </div>
+        
+        {/* Battery and status info */}
+        <div className="absolute bottom-2 right-2 bg-safesphere-dark-hover p-2 rounded-md text-xs">
+          <div className="flex items-center justify-between mb-1">
+            <span>Battery</span>
+            <span className={cn(
+              batteryLevel > 50 ? "text-safesphere-success" :
+              batteryLevel > 20 ? "text-safesphere-warning" :
+              "text-safesphere-red"
+            )}>{batteryLevel.toFixed(0)}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-safesphere-dark rounded-full overflow-hidden">
+            <div 
+              className={cn(
+                "h-full",
+                batteryLevel > 50 ? "bg-safesphere-success" :
+                batteryLevel > 20 ? "bg-safesphere-warning" :
+                "bg-safesphere-red"
+              )}
+              style={{ width: `${batteryLevel}%` }}
+            ></div>
+          </div>
+        </div>
+        
+        {/* Outside safe zone timer */}
+        {isOutsideSafeZone && (
+          <div className="absolute bottom-2 left-2 bg-safesphere-red/20 border border-safesphere-red/30 p-2 rounded-md text-xs">
+            <div className="flex items-center gap-1.5 text-safesphere-red">
+              <Clock size={12} />
+              <span>Outside safe zone: {formatTimeOutside(timeOutsideSafeZone)}</span>
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="mb-4">
-        <h3 className="text-sm font-medium mb-2">Safe Zones</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">Safe Zones</h3>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="h-7 px-2 text-xs border-white/10"
+          >
+            <Settings size={12} className="mr-1" />
+            Configure
+          </Button>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {safeZones.map(zone => (
             <div 
               key={zone.id}
               onClick={() => toggleSafeZone(zone.id)}
               className={`p-2 rounded-lg text-xs cursor-pointer transition-colors flex items-center gap-1.5 ${
                 zone.active 
-                  ? "bg-safesphere-green/10 text-safesphere-green border border-safesphere-green/20" 
+                  ? zone.trusted 
+                    ? "bg-safesphere-green/10 text-safesphere-green border border-safesphere-green/20" 
+                    : "bg-safesphere-info/10 text-safesphere-info border border-safesphere-info/20"
                   : "bg-safesphere-dark-hover text-safesphere-white-muted/60 border border-white/5"
               }`}
             >
               <MapPin size={12} />
               <span>{zone.name}</span>
+              {zone.trusted && zone.active && (
+                <Shield size={10} className="ml-0.5" />
+              )}
             </div>
           ))}
         </div>
       </div>
+      
+      {locationEvents.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-medium mb-2">Recent Events</h3>
+          <div className="space-y-2 max-h-32 overflow-y-auto pr-1 scrollbar-thin">
+            {locationEvents.map((event, index) => (
+              <div 
+                key={index}
+                className={cn(
+                  "p-2 rounded-lg flex justify-between items-center text-xs",
+                  event.type === 'emergency' 
+                    ? "bg-safesphere-red/10 border border-safesphere-red/20" 
+                    : event.type === 'zone_enter'
+                      ? "bg-safesphere-success/10 border border-safesphere-success/20"
+                      : "bg-safesphere-warning/10 border border-safesphere-warning/20"
+                )}
+              >
+                <div className="flex items-center gap-1.5">
+                  {event.type === 'emergency' ? (
+                    <Shield size={12} className="text-safesphere-red" />
+                  ) : event.type === 'zone_enter' ? (
+                    <MapPin size={12} className="text-safesphere-success" />
+                  ) : (
+                    <AlertTriangle size={12} className="text-safesphere-warning" />
+                  )}
+                  <span>{getLocationEventLabel(event)}</span>
+                </div>
+                <div className="text-safesphere-white-muted/60">
+                  {event.timestamp.toLocaleTimeString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       <div className="text-xs text-safesphere-white-muted/60">
         {isTracking ? (

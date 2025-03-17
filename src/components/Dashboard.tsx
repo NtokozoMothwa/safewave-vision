@@ -12,6 +12,7 @@ import LuxuryModeToggle from './LuxuryModeToggle';
 import LocationTracking from './LocationTracking';
 import GeofencingMap from './GeofencingMap';
 import TechStack from './TechStack';
+import FallDetection from './FallDetection';
 
 const Dashboard: React.FC = () => {
   return (
@@ -35,6 +36,14 @@ const Dashboard: React.FC = () => {
             </Link>
           </div>
           <VitalsDisplay />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <FallDetection />
+          <div className="space-y-6">
+            <VoiceCommand />
+            <PanicButton />
+          </div>
         </div>
         
         <div className="mb-6">
@@ -64,14 +73,12 @@ const Dashboard: React.FC = () => {
           <div className="lg:col-span-2">
             <AIInsights />
           </div>
-          <div className="space-y-4">
-            <VoiceCommand />
+          <div>
             <AlertsPanel />
           </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <PanicButton />
+        <div className="mb-6">
           <LuxuryModeToggle />
         </div>
         
