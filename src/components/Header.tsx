@@ -1,10 +1,11 @@
 
-import { Bell, Settings, User, LogOut, ShieldAlert } from 'lucide-react';
+import { Bell, Settings, User, LogOut, ShieldAlert, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import AnimatedTransition from './AnimatedTransition';
 import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +14,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Button } from './ui/button';
 
 const Header = () => {
   const location = useLocation();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navLinks = [
+    { to: "/", label: "Dashboard" },
+    { to: "/models", label: "Models" },
+    { to: "/settings", label: "Settings" },
+    ...(isAdmin ? [{ to: "/admin", label: "Admin", admin: true }] : [])
+  ];
   
   return (
     <AnimatedTransition 
@@ -36,21 +51,21 @@ const Header = () => {
           </div>
         </Link>
         
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          <Link to="/" className={cn("nav-link", location.pathname === "/" && "active")}>
-            Dashboard
-          </Link>
-          <Link to="/models" className={cn("nav-link", location.pathname === "/models" && "active")}>
-            Models
-          </Link>
-          <Link to="/settings" className={cn("nav-link", location.pathname === "/settings" && "active")}>
-            Settings
-          </Link>
-          {isAdmin && (
-            <Link to="/admin" className={cn("nav-link", location.pathname === "/admin" && "active")}>
-              Admin
+          {navLinks.map((link) => (
+            <Link 
+              key={link.to} 
+              to={link.to} 
+              className={cn(
+                "nav-link", 
+                location.pathname === link.to && "active",
+                link.admin && "text-safesphere-purple"
+              )}
+            >
+              {link.label}
             </Link>
-          )}
+          ))}
         </nav>
         
         <div className="flex items-center space-x-1">
@@ -104,12 +119,61 @@ const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              {/* Mobile Menu Toggle */}
+              <Popover>
+                <PopoverTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon" className="ml-2">
+                    <Menu size={20} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0 bg-safesphere-dark-card border-white/10 text-safesphere-white">
+                  <div className="flex flex-col py-2">
+                    {navLinks.map((link) => (
+                      <Link
+                        key={link.to}
+                        to={link.to}
+                        className={cn(
+                          "flex items-center py-2 px-4 hover:bg-safesphere-dark-hover", 
+                          location.pathname === link.to && "bg-safesphere-dark-hover",
+                          link.admin && "text-safesphere-purple"
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </>
           ) : (
-            <Link to="/login" className="flex items-center px-4 py-2 rounded-md bg-safesphere-red hover:bg-safesphere-red-light text-white">
-              <LogOut size={16} className="mr-2" />
-              Login
-            </Link>
+            <>
+              <Link to="/login" className="hidden md:flex items-center px-4 py-2 rounded-md bg-safesphere-red hover:bg-safesphere-red-light text-white">
+                <LogOut size={16} className="mr-2" />
+                Login
+              </Link>
+              
+              {/* Mobile Login */}
+              <Popover>
+                <PopoverTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon" className="ml-2">
+                    <Menu size={20} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0 bg-safesphere-dark-card border-white/10 text-safesphere-white">
+                  <div className="flex flex-col py-2">
+                    <Link
+                      to="/login"
+                      className="flex items-center gap-2 py-2 px-4 text-safesphere-red hover:bg-safesphere-dark-hover"
+                    >
+                      <LogOut size={16} />
+                      Login
+                    </Link>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </>
           )}
         </div>
       </div>
