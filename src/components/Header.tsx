@@ -79,12 +79,18 @@ const Header = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-white/10" />
                   {isAdmin && (
-                    <DropdownMenuItem as={Link} to="/admin" className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover">
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover"
+                      onClick={() => window.location.href = '/admin'}
+                    >
                       <ShieldAlert size={16} className="text-safesphere-purple" />
                       Admin Dashboard
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem as={Link} to="/settings" className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover">
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center gap-2 text-safesphere-white hover:bg-safesphere-dark-hover"
+                    onClick={() => window.location.href = '/settings'}
+                  >
                     <Settings size={16} />
                     Settings
                   </DropdownMenuItem>
