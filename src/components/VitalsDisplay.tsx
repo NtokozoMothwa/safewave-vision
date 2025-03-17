@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ActivitySquare, Droplet, Heart, Thermometer, AlertTriangle } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
@@ -74,25 +73,21 @@ const VitalCard: React.FC<VitalProps> = ({
   );
 };
 
-// AI anomaly detection function
 const detectAnomaly = (metric: string, value: number, history: number[]): {
   isAnomaly: boolean;
   severity: 'warning' | 'danger' | null;
   message: string | null;
 } => {
-  // Skip anomaly detection if not enough history
   if (history.length < 5) {
     return { isAnomaly: false, severity: null, message: null };
   }
 
-  // Calculate mean and standard deviation
   const mean = history.reduce((sum, val) => sum + val, 0) / history.length;
   const stdDev = Math.sqrt(
     history.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / history.length
   );
 
-  // Z-score (how many standard deviations from the mean)
-  const zScore = Math.abs((value - mean) / (stdDev || 1)); // Avoid division by zero
+  const zScore = Math.abs((value - mean) / (stdDev || 1));
 
   switch (metric) {
     case 'heartRate':
@@ -138,8 +133,7 @@ const detectAnomaly = (metric: string, value: number, history: number[]): {
       break;
     
     case 'stressLevel':
-      // For non-numeric metrics like stress level
-      if (value === 3) { // High stress
+      if (value === 3) {
         return {
           isAnomaly: true,
           severity: 'warning',
@@ -155,7 +149,6 @@ const detectAnomaly = (metric: string, value: number, history: number[]): {
 const VitalsDisplay: React.FC = () => {
   const { toast: useToastNotify } = useToast();
   
-  // Store historical data for anomaly detection
   const [heartRateHistory, setHeartRateHistory] = useState<number[]>([]);
   const [oxygenHistory, setOxygenHistory] = useState<number[]>([]);
   const [temperatureHistory, setTemperatureHistory] = useState<number[]>([]);
@@ -203,21 +196,18 @@ const VitalsDisplay: React.FC = () => {
     trend: "up"
   });
 
-  // Function to check if emergency services should be contacted
   const checkEmergencyCondition = (
     hr: { value: string; status: string },
     o2: { value: string; status: string },
     temp: { value: string; status: string },
     stress: { value: string; status: string; rawValue: number }
   ) => {
-    // Count danger signals
     const dangerCount = 
       (hr.status === 'danger' ? 1 : 0) + 
       (o2.status === 'danger' ? 1 : 0) + 
       (temp.status === 'danger' ? 1 : 0) + 
       (stress.status === 'danger' ? 1 : 0);
     
-    // Critical situations that require immediate attention
     const criticalHr = parseInt(hr.value) > 140 || parseInt(hr.value) < 40;
     const criticalO2 = parseInt(o2.value) < 85;
     const criticalTemp = parseFloat(temp.value) > 39.5 || parseFloat(temp.value) < 35;
@@ -234,31 +224,25 @@ const VitalsDisplay: React.FC = () => {
         duration: 10000,
       });
       
-      // Here we would integrate with the emergency contact system
       console.log("EMERGENCY: Contacting emergency services and designated contacts");
     }
   };
 
-  // Enhanced vital signs simulation
   useEffect(() => {
     const interval = setInterval(() => {
-      // Random heart rate changes with more sophisticated patterns
       const baseHrValue = parseInt(heartRate.value);
-      const hrChange = Math.floor(Math.random() * 5) - 2; // Between -2 and +2
+      const hrChange = Math.floor(Math.random() * 5) - 2;
       const newHrValue = Math.max(45, Math.min(160, baseHrValue + hrChange));
       
-      // Update history for anomaly detection
       const newHrHistory = [...heartRateHistory, newHrValue].slice(-20);
       setHeartRateHistory(newHrHistory);
       
-      // Run anomaly detection
       const hrAnomaly = detectAnomaly('heartRate', newHrValue, newHrHistory);
       
       let newHrStatus: 'normal' | 'warning' | 'danger' = 'normal';
       if (hrAnomaly.isAnomaly && hrAnomaly.severity) {
         newHrStatus = hrAnomaly.severity;
       } else {
-        // Standard threshold check
         if (newHrValue > 100) {
           newHrStatus = 'danger';
         } else if (newHrValue > 90) {
@@ -273,14 +257,12 @@ const VitalsDisplay: React.FC = () => {
         newHrTrend = 'down';
       }
       
-      // Notify user of anomalies
       if (hrAnomaly.isAnomaly && hrAnomaly.message && newHrStatus === 'danger' && heartRate.status !== 'danger') {
         toast.error(hrAnomaly.message, {
           description: "Consider resting and monitoring your heart rate.",
         });
       } else if (newHrStatus === "danger" && heartRate.status !== "danger") {
-        toast({
-          title: "High Heart Rate Alert",
+        useToastNotify({
           description: `Your heart rate is elevated at ${newHrValue} BPM`,
           variant: "destructive",
         });
@@ -292,24 +274,20 @@ const VitalsDisplay: React.FC = () => {
         trend: newHrTrend 
       });
       
-      // Oxygen level changes (less frequent)
       if (Math.random() > 0.7) {
         const baseO2Value = parseInt(oxygenLevel.value);
         const o2Change = Math.random() > 0.7 ? -1 : Math.random() > 0.8 ? -2 : 1;
         const newO2Value = Math.max(80, Math.min(100, baseO2Value + o2Change));
         
-        // Update history for anomaly detection
         const newO2History = [...oxygenHistory, newO2Value].slice(-20);
         setOxygenHistory(newO2History);
         
-        // Run anomaly detection
         const o2Anomaly = detectAnomaly('oxygenLevel', newO2Value, newO2History);
         
         let newO2Status: 'normal' | 'warning' | 'danger' = 'normal';
         if (o2Anomaly.isAnomaly && o2Anomaly.severity) {
           newO2Status = o2Anomaly.severity;
         } else {
-          // Standard threshold check
           if (newO2Value < 90) {
             newO2Status = 'danger';
           } else if (newO2Value < 95) {
@@ -324,7 +302,6 @@ const VitalsDisplay: React.FC = () => {
           newO2Trend = 'down';
         }
         
-        // Notify of serious oxygen issues
         if (o2Anomaly.isAnomaly && o2Anomaly.message && newO2Status === 'danger' && oxygenLevel.status !== 'danger') {
           toast.error(o2Anomaly.message, {
             description: "Please get to fresh air and consider medical assistance if this persists.",
@@ -338,24 +315,20 @@ const VitalsDisplay: React.FC = () => {
         });
       }
       
-      // Temperature changes (less frequent)
       if (Math.random() > 0.8) {
         const baseTempValue = parseFloat(temperature.value);
-        const tempChange = (Math.random() - 0.5) * 0.2; // Small random change
+        const tempChange = (Math.random() - 0.5) * 0.2;
         const newTempValue = Math.max(35, Math.min(40, baseTempValue + tempChange)).toFixed(1);
         
-        // Update history for anomaly detection
         const newTempHistory = [...temperatureHistory, parseFloat(newTempValue)].slice(-20);
         setTemperatureHistory(newTempHistory);
         
-        // Run anomaly detection
         const tempAnomaly = detectAnomaly('temperature', parseFloat(newTempValue), newTempHistory);
         
         let newTempStatus: 'normal' | 'warning' | 'danger' = 'normal';
         if (tempAnomaly.isAnomaly && tempAnomaly.severity) {
           newTempStatus = tempAnomaly.severity;
         } else {
-          // Standard threshold check
           if (parseFloat(newTempValue) > 37.5) {
             newTempStatus = 'danger';
           } else if (parseFloat(newTempValue) > 37.0) {
@@ -370,7 +343,6 @@ const VitalsDisplay: React.FC = () => {
           newTempTrend = 'down';
         }
         
-        // Notify of fever
         if (tempAnomaly.isAnomaly && tempAnomaly.message && newTempStatus === 'danger' && temperature.status !== 'danger') {
           toast.error(tempAnomaly.message, {
             description: "Please rest and consider taking appropriate medication.",
@@ -384,19 +356,16 @@ const VitalsDisplay: React.FC = () => {
         });
       }
       
-      // Stress level changes (less frequent)
       if (Math.random() > 0.9) {
         const stressOptions = ["Low", "Medium", "High"];
-        const stressValues = [1, 2, 3]; // Numeric representation for analytics
+        const stressValues = [1, 2, 3];
         const stressIndex = Math.floor(Math.random() * 3);
         const newStressValue = stressOptions[stressIndex];
         const newStressRawValue = stressValues[stressIndex];
         
-        // Update history for anomaly detection
         const newStressHistory = [...stressHistory, newStressRawValue].slice(-20);
         setStressHistory(newStressHistory);
         
-        // Run anomaly detection
         const stressAnomaly = detectAnomaly('stressLevel', newStressRawValue, newStressHistory);
         
         let newStressStatus: 'normal' | 'warning' | 'danger';
@@ -422,7 +391,6 @@ const VitalsDisplay: React.FC = () => {
           newStressTrend = 'stable';
         }
         
-        // Notify of high stress
         if (newStressStatus === 'danger' && stressLevel.status !== 'danger') {
           toast.warning("High Stress Detected", {
             description: "Consider taking a break or practicing breathing exercises.",
@@ -437,7 +405,6 @@ const VitalsDisplay: React.FC = () => {
         });
       }
       
-      // Check if emergency conditions are met with the new values
       checkEmergencyCondition(
         { value: heartRate.value, status: heartRate.status },
         { value: oxygenLevel.value, status: oxygenLevel.status },
@@ -445,7 +412,7 @@ const VitalsDisplay: React.FC = () => {
         { value: stressLevel.value, status: stressLevel.status, rawValue: stressLevel.rawValue }
       );
       
-    }, 3000); // Update every 3 seconds
+    }, 3000);
     
     return () => clearInterval(interval);
   }, [heartRate, oxygenLevel, temperature, stressLevel, heartRateHistory, oxygenHistory, temperatureHistory, stressHistory, useToastNotify]);

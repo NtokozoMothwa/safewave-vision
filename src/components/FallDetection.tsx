@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { PersonStanding, PersonFalling, History, Bell, BellRing } from 'lucide-react';
+import { PersonStanding, ArrowDown, History, Bell, BellRing } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -19,10 +18,7 @@ const FallDetection: React.FC = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [sensitivity, setSensitivity] = useState(75); // 0-100 scale
   
-  // Simulate accelerometer/gyroscope data
   const simulateMotionSensor = () => {
-    // In a real app, this would use device motion APIs
-    // For simulation, randomly trigger fall detection
     if (Math.random() > 0.98) {
       return {
         isFall: true,
@@ -32,9 +28,7 @@ const FallDetection: React.FC = () => {
     return { isFall: false, confidence: 0 };
   };
 
-  // Handle fall detection alert response
   const handleEmergencyResponse = (isRealEmergency: boolean) => {
-    // Add to history
     const newFallEvent: FallEvent = {
       timestamp: new Date().toLocaleTimeString(),
       confidence: Math.round(70 + Math.random() * 25),
@@ -49,7 +43,6 @@ const FallDetection: React.FC = () => {
         duration: 10000,
       });
       
-      // In real app, this would trigger emergency contact system
       console.log("FALL EMERGENCY: Contacting emergency services and designated contacts");
     } else {
       toast.info("Alert Cancelled", {
@@ -61,7 +54,6 @@ const FallDetection: React.FC = () => {
     setCountdown(15);
   };
 
-  // Auto-send alert when countdown reaches zero
   useEffect(() => {
     if (!fallDetected) return;
     
@@ -77,15 +69,12 @@ const FallDetection: React.FC = () => {
     return () => clearTimeout(timer);
   }, [fallDetected, countdown, fallHistory]);
 
-  // Monitor for falls
   useEffect(() => {
-    // Don't monitor during test/response phase
     if (fallDetected || isTesting) return;
     
     const intervalId = setInterval(() => {
       const motionData = simulateMotionSensor();
       
-      // Check if sensitivity threshold is met
       if (motionData.isFall && motionData.confidence >= sensitivity) {
         setFallDetected(true);
         toast.warning("Possible Fall Detected", {
@@ -97,7 +86,6 @@ const FallDetection: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [fallDetected, isTesting, sensitivity]);
 
-  // Test fall detection
   const testFallDetection = () => {
     setIsTesting(true);
     setFallDetected(true);
@@ -106,7 +94,6 @@ const FallDetection: React.FC = () => {
       description: "This is a test of the fall detection system.",
     });
     
-    // Automatically end test after 20 seconds
     setTimeout(() => {
       if (isTesting) {
         setIsTesting(false);
@@ -129,7 +116,7 @@ const FallDetection: React.FC = () => {
         <div className="p-4 bg-safesphere-dark-hover rounded-lg mb-4">
           <div className="flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-safesphere-red/20 flex items-center justify-center mb-3">
-              <PersonFalling className="text-safesphere-red h-8 w-8 animate-pulse" />
+              <ArrowDown className="text-safesphere-red h-8 w-8 animate-pulse" />
             </div>
             
             <h3 className="text-lg font-medium mb-1">{isTesting ? "TEST: " : ""}Fall Detected</h3>
