@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { BarChart3, ThermometerSnowflake, MapPin, Navigation, Code } from 'lucide-react';
+import { BarChart3, ThermometerSnowflake, MapPin, Navigation, Code, Brain } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import VitalsDisplay from './VitalsDisplay';
 import AlertsPanel from './AlertsPanel';
@@ -13,6 +13,7 @@ import LocationTracking from './LocationTracking';
 import GeofencingMap from './GeofencingMap';
 import TechStack from './TechStack';
 import FallDetection from './FallDetection';
+import PredictiveInsights from './PredictiveInsights';
 
 const Dashboard: React.FC = () => {
   return (
@@ -48,6 +49,19 @@ const Dashboard: React.FC = () => {
         
         <div className="mb-6">
           <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">AI-Powered Health Insights</h2>
+            <div className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60">
+              <Brain size={14} /> Learning from your patterns
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <PredictiveInsights />
+            <AlertsPanel />
+          </div>
+        </div>
+        
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">Environmental Conditions</h2>
             <div className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60">
               <ThermometerSnowflake size={14} /> Updated just now
@@ -69,13 +83,8 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <AIInsights />
-          </div>
-          <div>
-            <AlertsPanel />
-          </div>
+        <div className="mb-6">
+          <AIInsights />
         </div>
         
         <div className="mb-6">

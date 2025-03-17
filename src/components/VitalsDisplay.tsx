@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ActivitySquare, Droplet, Heart, Thermometer, AlertTriangle } from 'lucide-react';
+import { ActivitySquare, Droplet, Heart, Thermometer } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
@@ -214,7 +214,6 @@ const VitalsDisplay: React.FC = () => {
     
     if (criticalHr || criticalO2 || criticalTemp || dangerCount >= 2) {
       useToastNotify({
-        title: "EMERGENCY ALERT",
         description: "Multiple critical health indicators detected. Emergency contacts will be notified.",
         variant: "destructive",
       });
