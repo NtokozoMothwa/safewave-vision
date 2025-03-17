@@ -15,12 +15,31 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => {
   useEffect(() => {
     // Apply dark mode to the body to ensure proper styling
     document.body.classList.add('dark');
+    
+    // Set up viewport height for mobile devices
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    setVh();
+    window.addEventListener('resize', setVh);
+    
+    return () => window.removeEventListener('resize', setVh);
   }, []);
 
   return (
