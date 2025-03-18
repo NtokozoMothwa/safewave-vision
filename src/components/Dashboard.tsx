@@ -7,6 +7,7 @@ import AlertsPanel from './AlertsPanel';
 import PanicButton from './PanicButton';
 import AIInsights from './AIInsights';
 import EnvironmentMonitor from './EnvironmentMonitor';
+import EnvironmentAlertHistory from './EnvironmentAlertHistory';
 import VoiceCommand from './VoiceCommand';
 import LuxuryModeToggle from './LuxuryModeToggle';
 import LocationTracking from './LocationTracking';
@@ -70,7 +71,10 @@ const Dashboard: React.FC = () => {
               <ThermometerSnowflake size={14} /> Updated just now
             </div>
           </div>
-          <EnvironmentMonitor />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <EnvironmentMonitor />
+            <EnvironmentAlertHistory />
+          </div>
         </div>
         
         <div className="mb-6">

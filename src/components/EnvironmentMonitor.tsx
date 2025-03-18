@@ -78,6 +78,10 @@ const EnvironmentMonitor: React.FC = () => {
     value: 6,
     status: 'caution'
   });
+  
+  // Track previous status values to avoid duplicate alerts
+  const [prevTempStatus, setPrevTempStatus] = useState<'safe' | 'caution' | 'danger'>('safe');
+  const [prevAirStatus, setPrevAirStatus] = useState<'safe' | 'caution' | 'danger'>('caution');
 
   // Simulate changing environmental conditions for demo purposes
   useEffect(() => {
@@ -92,13 +96,14 @@ const EnvironmentMonitor: React.FC = () => {
         newTempStatus = 'caution';
       }
       
-      if (newTempStatus === "danger" && temperature.status !== "danger") {
+      if (newTempStatus === "danger" && prevTempStatus !== "danger") {
         toast("Temperature Alert", {
           description: `High temperature detected: ${newTempValue}°C. Stay hydrated.`,
         });
       }
       
       setTemperature({ value: newTempValue, status: newTempStatus });
+      setPrevTempStatus(newTempStatus);
       
       // Random humidity changes (less frequent)
       if (Math.random() > 0.7) {
@@ -125,13 +130,14 @@ const EnvironmentMonitor: React.FC = () => {
           newAqiStatus = 'caution';
         }
         
-        if (newAqiStatus === "danger" && airQuality.status !== "danger") {
+        if (newAqiStatus === "danger" && prevAirStatus !== "danger") {
           toast("Air Quality Warning", {
             description: `Poor air quality detected (AQI: ${newAqiValue}). Consider wearing a mask.`,
           });
         }
         
         setAirQuality({ value: newAqiValue, status: newAqiStatus });
+        setPrevAirStatus(newAqiStatus);
       }
       
       // Random UV Index changes (less frequent)
@@ -150,45 +156,48 @@ const EnvironmentMonitor: React.FC = () => {
     }, 5000); // Update every 5 seconds
     
     return () => clearInterval(interval);
-  }, [temperature, humidity, airQuality, uvIndex]);
+  }, [prevTempStatus, prevAirStatus]);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <EnvironmentCard 
-        title="Temperature"
-        value={temperature.value}
-        unit="°C"
-        icon={<Thermometer size={13} className="text-safesphere-info" />}
-        status={temperature.status}
-        delay={0.1}
-      />
-      
-      <EnvironmentCard 
-        title="Humidity"
-        value={humidity.value}
-        unit="%"
-        icon={<CloudRain size={13} className="text-safesphere-success" />}
-        status={humidity.status}
-        delay={0.2}
-      />
-      
-      <EnvironmentCard 
-        title="Air Quality"
-        value={airQuality.value}
-        unit="AQI"
-        icon={<Wind size={13} className="text-safesphere-warning" />}
-        status={airQuality.status}
-        delay={0.3}
-      />
-      
-      <EnvironmentCard 
-        title="UV Index"
-        value={uvIndex.value}
-        unit=""
-        icon={<AlertTriangle size={13} className="text-safesphere-red" />}
-        status={uvIndex.status}
-        delay={0.4}
-      />
+    <div className="glass-card rounded-2xl p-5">
+      <h3 className="text-sm font-medium mb-4">Current Readings</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <EnvironmentCard 
+          title="Temperature"
+          value={temperature.value}
+          unit="°C"
+          icon={<Thermometer size={13} className="text-safesphere-info" />}
+          status={temperature.status}
+          delay={0.1}
+        />
+        
+        <EnvironmentCard 
+          title="Humidity"
+          value={humidity.value}
+          unit="%"
+          icon={<CloudRain size={13} className="text-safesphere-success" />}
+          status={humidity.status}
+          delay={0.2}
+        />
+        
+        <EnvironmentCard 
+          title="Air Quality"
+          value={airQuality.value}
+          unit="AQI"
+          icon={<Wind size={13} className="text-safesphere-warning" />}
+          status={airQuality.status}
+          delay={0.3}
+        />
+        
+        <EnvironmentCard 
+          title="UV Index"
+          value={uvIndex.value}
+          unit=""
+          icon={<AlertTriangle size={13} className="text-safesphere-red" />}
+          status={uvIndex.status}
+          delay={0.4}
+        />
+      </div>
     </div>
   );
 };

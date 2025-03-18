@@ -6,13 +6,13 @@ import { toast } from 'sonner';
 
 const Index = () => {
   useEffect(() => {
-    // Demo toast for prototype
+    // Show environment alert after a delay to avoid overwhelming the user on page load
     const timer = setTimeout(() => {
       toast("Environment Alert", {
         description: "Air quality has decreased in your area.",
         position: "top-right",
       });
-    }, 2000);
+    }, 5000); // Increased from 2000ms to 5000ms for better user experience
     
     return () => clearTimeout(timer);
   }, []);
