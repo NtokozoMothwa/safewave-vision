@@ -11,9 +11,12 @@ interface DistributionData {
 
 interface AdminUserDistributionProps {
   data: DistributionData[];
+  title?: string;
+  description?: string;
+  colors?: string[];
 }
 
-const COLORS = ['#10b981', '#8E9196', '#fbbf24'];
+const COLORS = ['#10b981', '#8E9196', '#fbbf24', '#3b82f6', '#ec4899', '#8b5cf6'];
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -28,16 +31,21 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 };
 
-const AdminUserDistribution: React.FC<AdminUserDistributionProps> = ({ data }) => {
+const AdminUserDistribution: React.FC<AdminUserDistributionProps> = ({ 
+  data,
+  title = "Distribution Chart", 
+  description = "Breakdown by category",
+  colors = COLORS
+}) => {
   return (
     <Card className="bg-safesphere-dark-card border-white/10">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg text-safesphere-white flex items-center gap-2">
           <PieChartIcon size={18} className="text-safesphere-warning" />
-          User Distribution
+          {title}
         </CardTitle>
         <CardDescription className="text-safesphere-white-muted/60">
-          Distribution of users by status
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,7 +63,7 @@ const AdminUserDistribution: React.FC<AdminUserDistributionProps> = ({ data }) =
                 dataKey="value"
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
               </Pie>
               <Tooltip

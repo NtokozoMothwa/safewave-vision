@@ -9,6 +9,7 @@ interface AdminStatCardProps {
   change: string;
   trend: 'up' | 'down' | 'neutral';
   icon: React.ReactNode;
+  subtitle?: string;
 }
 
 const AdminStatCard: React.FC<AdminStatCardProps> = ({
@@ -17,14 +18,16 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
   change,
   trend,
   icon,
+  subtitle,
 }) => {
   return (
     <Card className="bg-safesphere-dark-card border-white/10">
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-safesphere-white-muted/60 text-sm">{title}</p>
+            <p className="text-safesphere-white-muted/60 text-sm font-medium">{title}</p>
             <h3 className="text-2xl font-bold text-safesphere-white mt-1">{value}</h3>
+            {subtitle && <p className="text-xs text-safesphere-white-muted/60 mt-1">{subtitle}</p>}
           </div>
           <div className="rounded-full bg-safesphere-dark-hover p-2">
             {icon}
@@ -47,7 +50,7 @@ const AdminStatCard: React.FC<AdminStatCardProps> = ({
                   : 'text-safesphere-white-muted/60'
             }`
           }>
-            {change} from last month
+            {change} from last period
           </span>
         </div>
       </CardContent>

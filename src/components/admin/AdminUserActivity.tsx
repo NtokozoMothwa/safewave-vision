@@ -11,18 +11,26 @@ interface ActivityData {
 
 interface AdminUserActivityProps {
   data: ActivityData[];
+  title?: string;
+  description?: string;
+  color?: string;
 }
 
-const AdminUserActivity: React.FC<AdminUserActivityProps> = ({ data }) => {
+const AdminUserActivity: React.FC<AdminUserActivityProps> = ({ 
+  data, 
+  title = "System Activity", 
+  description = "Weekly activity metrics",
+  color = "#3b82f6" 
+}) => {
   return (
     <Card className="bg-safesphere-dark-card border-white/10">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg text-safesphere-white flex items-center gap-2">
           <LineChartIcon size={18} className="text-safesphere-info" />
-          New User Signups
+          {title}
         </CardTitle>
         <CardDescription className="text-safesphere-white-muted/60">
-          Weekly user registration activity
+          {description}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -53,10 +61,10 @@ const AdminUserActivity: React.FC<AdminUserActivityProps> = ({ data }) => {
               <Line 
                 type="monotone" 
                 dataKey="count" 
-                stroke="#3b82f6" 
+                stroke={color} 
                 strokeWidth={2}
-                dot={{ fill: '#3b82f6', strokeWidth: 0, r: 4 }}
-                activeDot={{ fill: '#3b82f6', strokeWidth: 0, r: 6 }}
+                dot={{ fill: color, strokeWidth: 0, r: 4 }}
+                activeDot={{ fill: color, strokeWidth: 0, r: 6 }}
               />
             </LineChart>
           </ResponsiveContainer>
