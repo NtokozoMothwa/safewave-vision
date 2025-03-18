@@ -10,8 +10,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, Users, Search, AlertCircle, Shield, Activity, Settings2 } from 'lucide-react';
+import { 
+  UserPlus, 
+  Users, 
+  Search, 
+  AlertCircle, 
+  Shield, 
+  Activity, 
+  Settings2,
+  PieChart,
+  LineChart,
+  ArrowUpRight,
+  Calendar,
+  UserCheck,
+  UserX,
+  Eye,
+  Filter,
+  Download
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
+import AdminStatCard from '@/components/admin/AdminStatCard';
+import AdminUserActivity from '@/components/admin/AdminUserActivity';
+import AdminUserDistribution from '@/components/admin/AdminUserDistribution';
 
 // Mock data for users
 const mockUsers = [
@@ -30,9 +51,28 @@ const mockAlerts = [
   { id: '4', userId: '5', type: 'environment', message: 'High CO2 levels detected', timestamp: '2 hours ago', severity: 'high' },
 ];
 
+// Weekly signup data
+const signupData = [
+  { day: 'Mon', count: 5 },
+  { day: 'Tue', count: 8 },
+  { day: 'Wed', count: 12 },
+  { day: 'Thu', count: 7 },
+  { day: 'Fri', count: 10 },
+  { day: 'Sat', count: 6 },
+  { day: 'Sun', count: 4 },
+];
+
+// User distribution data
+const userDistributionData = [
+  { name: 'Active', value: 65 },
+  { name: 'Inactive', value: 25 },
+  { name: 'Pending', value: 10 },
+];
+
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
   
   const filteredUsers = mockUsers.filter(u => 
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -41,6 +81,10 @@ const AdminDashboard = () => {
   
   const handleAddUser = () => {
     toast.info('This would open a form to add a new user');
+  };
+  
+  const handleExportData = () => {
+    toast.success('User data exported successfully');
   };
   
   const getSeverityBadge = (severity: string) => {
@@ -73,27 +117,63 @@ const AdminDashboard = () => {
       <AnimatedTransition className="max-w-7xl mx-auto">
         <div className="px-4 pt-20 pb-10">
           <AnimatedTransition direction="up" className="mb-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 <p className="text-safesphere-white-muted/60 mt-2">
                   Welcome back, {user?.name || 'Admin'}
                 </p>
               </div>
-              <Card className="w-auto bg-safesphere-dark-card border-white/10 p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-safesphere-white-muted/60">Total Users</span>
-                    <span className="text-2xl font-bold">{mockUsers.length}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-safesphere-white-muted/60">Active Alerts</span>
-                    <span className="text-2xl font-bold">{mockAlerts.length}</span>
-                  </div>
-                </div>
-              </Card>
+              <div className="flex gap-3">
+                <Button onClick={handleExportData} variant="outline" size="sm" className="flex items-center gap-2 border-white/10 text-safesphere-white-muted hover:bg-safesphere-dark-hover">
+                  <Download size={16} />
+                  <span>Export</span>
+                </Button>
+                <Button onClick={handleAddUser} className="bg-safesphere-info hover:bg-safesphere-info/80 flex items-center gap-2">
+                  <UserPlus size={16} />
+                  <span>Add User</span>
+                </Button>
+              </div>
             </div>
           </AnimatedTransition>
+          
+          {/* Stats Cards Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <AdminStatCard 
+              title="Total Users"
+              value={mockUsers.length.toString()}
+              change="+12%"
+              trend="up"
+              icon={<Users className="h-5 w-5 text-safesphere-info" />}
+            />
+            <AdminStatCard 
+              title="Active Users"
+              value={(mockUsers.filter(u => u.status === 'active').length).toString()}
+              change="+7%"
+              trend="up"
+              icon={<UserCheck className="h-5 w-5 text-safesphere-success" />}
+            />
+            <AdminStatCard 
+              title="Inactive Users"
+              value={(mockUsers.filter(u => u.status === 'inactive').length).toString()}
+              change="-2%"
+              trend="down"
+              icon={<UserX className="h-5 w-5 text-safesphere-white-muted" />}
+            />
+            <AdminStatCard 
+              title="Active Alerts"
+              value={mockAlerts.length.toString()}
+              change="+1"
+              trend="up"
+              icon={<AlertCircle className="h-5 w-5 text-safesphere-red" />}
+            />
+          </div>
+          
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <AdminUserActivity data={signupData} />
+            <AdminUserDistribution data={userDistributionData} />
+          </div>
           
           <Tabs defaultValue="users" className="w-full">
             <TabsList className="glass-panel grid w-full grid-cols-3 mb-4">
@@ -114,15 +194,19 @@ const AdminDashboard = () => {
             <TabsContent value="users" className="space-y-4">
               <Card className="bg-safesphere-dark-card border-white/10">
                 <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <CardTitle className="text-xl text-safesphere-white flex items-center gap-2">
                       <Shield size={20} className="text-safesphere-info" />
                       User Management
                     </CardTitle>
-                    <Button onClick={handleAddUser} className="bg-safesphere-info hover:bg-safesphere-info/80">
-                      <UserPlus size={16} className="mr-2" />
-                      Add User
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" className="h-8 border-white/10 text-safesphere-white-muted hover:bg-safesphere-dark-hover">
+                        <Filter size={14} className="mr-1" /> Filter
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-8 border-white/10 text-safesphere-white-muted hover:bg-safesphere-dark-hover">
+                        <Eye size={14} className="mr-1" /> View All
+                      </Button>
+                    </div>
                   </div>
                   <CardDescription className="text-safesphere-white-muted/60">
                     Manage users and their permissions
@@ -143,46 +227,55 @@ const AdminDashboard = () => {
                   </div>
                   
                   <div className="rounded-md border border-white/10 overflow-hidden">
-                    <Table>
-                      <TableHeader className="bg-safesphere-black">
-                        <TableRow className="hover:bg-safesphere-black/50 border-b-white/10">
-                          <TableHead className="text-safesphere-white">Name</TableHead>
-                          <TableHead className="text-safesphere-white">Email</TableHead>
-                          <TableHead className="text-safesphere-white">Role</TableHead>
-                          <TableHead className="text-safesphere-white">Status</TableHead>
-                          <TableHead className="text-safesphere-white">Last Active</TableHead>
-                          <TableHead className="text-safesphere-white text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers.length > 0 ? (
-                          filteredUsers.map((user) => (
-                            <TableRow key={user.id} className="hover:bg-safesphere-dark-hover border-b-white/10">
-                              <TableCell className="font-medium text-safesphere-white">{user.name}</TableCell>
-                              <TableCell className="text-safesphere-white-muted/70">{user.email}</TableCell>
-                              <TableCell>
-                                <Badge variant={user.role === 'admin' ? 'destructive' : 'outline'} className={user.role === 'admin' ? 'bg-safesphere-purple' : ''}>
-                                  {user.role === 'admin' ? 'Admin' : 'User'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>{getStatusBadge(user.status)}</TableCell>
-                              <TableCell className="text-safesphere-white-muted/70">{user.lastActive}</TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="ghost" size="sm" className="h-8 text-safesphere-info hover:text-safesphere-info/80 hover:bg-safesphere-black/20">
-                                  Edit
-                                </Button>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader className="bg-safesphere-black">
+                          <TableRow className="hover:bg-safesphere-black/50 border-b-white/10">
+                            <TableHead className="text-safesphere-white">Name</TableHead>
+                            <TableHead className="text-safesphere-white">Email</TableHead>
+                            <TableHead className="text-safesphere-white">Role</TableHead>
+                            <TableHead className="text-safesphere-white">Status</TableHead>
+                            <TableHead className="text-safesphere-white">Last Active</TableHead>
+                            <TableHead className="text-safesphere-white text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredUsers.length > 0 ? (
+                            filteredUsers.map((user) => (
+                              <TableRow key={user.id} className="hover:bg-safesphere-dark-hover border-b-white/10">
+                                <TableCell className="font-medium text-safesphere-white">{user.name}</TableCell>
+                                <TableCell className="text-safesphere-white-muted/70">{user.email}</TableCell>
+                                <TableCell>
+                                  <Badge variant={user.role === 'admin' ? 'destructive' : 'outline'} className={user.role === 'admin' ? 'bg-safesphere-purple' : ''}>
+                                    {user.role === 'admin' ? 'Admin' : 'User'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>{getStatusBadge(user.status)}</TableCell>
+                                <TableCell className="text-safesphere-white-muted/70">{user.lastActive}</TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <Button variant="ghost" size="sm" className="h-8 text-safesphere-info hover:text-safesphere-info/80 hover:bg-safesphere-black/20">
+                                      Edit
+                                    </Button>
+                                    {user.role !== 'admin' && (
+                                      <Button variant="ghost" size="sm" className="h-8 text-safesphere-red hover:text-safesphere-red/80 hover:bg-safesphere-black/20">
+                                        Delete
+                                      </Button>
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center h-24 text-safesphere-white-muted/60">
+                                No users found
                               </TableCell>
                             </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={6} className="text-center h-24 text-safesphere-white-muted/60">
-                              No users found
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -191,49 +284,61 @@ const AdminDashboard = () => {
             <TabsContent value="alerts" className="space-y-4">
               <Card className="bg-safesphere-dark-card border-white/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xl text-safesphere-white flex items-center gap-2">
-                    <Activity size={20} className="text-safesphere-warning" />
-                    System Alerts
-                  </CardTitle>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-xl text-safesphere-white flex items-center gap-2">
+                      <Activity size={20} className="text-safesphere-warning" />
+                      System Alerts
+                    </CardTitle>
+                    <Badge variant="outline" className="border-white/10">
+                      {mockAlerts.length} active alerts
+                    </Badge>
+                  </div>
                   <CardDescription className="text-safesphere-white-muted/60">
                     Monitor and manage system alerts
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-md border border-white/10 overflow-hidden">
-                    <Table>
-                      <TableHeader className="bg-safesphere-black">
-                        <TableRow className="hover:bg-safesphere-black/50 border-b-white/10">
-                          <TableHead className="text-safesphere-white">User</TableHead>
-                          <TableHead className="text-safesphere-white">Type</TableHead>
-                          <TableHead className="text-safesphere-white">Message</TableHead>
-                          <TableHead className="text-safesphere-white">Severity</TableHead>
-                          <TableHead className="text-safesphere-white">Time</TableHead>
-                          <TableHead className="text-safesphere-white text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {mockAlerts.map((alert) => {
-                          const alertUser = mockUsers.find(u => u.id === alert.userId);
-                          return (
-                            <TableRow key={alert.id} className="hover:bg-safesphere-dark-hover border-b-white/10">
-                              <TableCell className="font-medium text-safesphere-white">
-                                {alertUser?.name || 'Unknown User'}
-                              </TableCell>
-                              <TableCell className="capitalize text-safesphere-white-muted/70">{alert.type}</TableCell>
-                              <TableCell className="text-safesphere-white-muted/70">{alert.message}</TableCell>
-                              <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
-                              <TableCell className="text-safesphere-white-muted/70">{alert.timestamp}</TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="ghost" size="sm" className="h-8 text-safesphere-info hover:text-safesphere-info/80 hover:bg-safesphere-black/20">
-                                  Resolve
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader className="bg-safesphere-black">
+                          <TableRow className="hover:bg-safesphere-black/50 border-b-white/10">
+                            <TableHead className="text-safesphere-white">User</TableHead>
+                            <TableHead className="text-safesphere-white">Type</TableHead>
+                            <TableHead className="text-safesphere-white">Message</TableHead>
+                            <TableHead className="text-safesphere-white">Severity</TableHead>
+                            <TableHead className="text-safesphere-white">Time</TableHead>
+                            <TableHead className="text-safesphere-white text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {mockAlerts.map((alert) => {
+                            const alertUser = mockUsers.find(u => u.id === alert.userId);
+                            return (
+                              <TableRow key={alert.id} className="hover:bg-safesphere-dark-hover border-b-white/10">
+                                <TableCell className="font-medium text-safesphere-white">
+                                  {alertUser?.name || 'Unknown User'}
+                                </TableCell>
+                                <TableCell className="capitalize text-safesphere-white-muted/70">{alert.type}</TableCell>
+                                <TableCell className="text-safesphere-white-muted/70">{alert.message}</TableCell>
+                                <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
+                                <TableCell className="text-safesphere-white-muted/70">{alert.timestamp}</TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <Button variant="ghost" size="sm" className="h-8 text-safesphere-info hover:text-safesphere-info/80 hover:bg-safesphere-black/20">
+                                      Details
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-8 text-safesphere-success hover:text-safesphere-success/80 hover:bg-safesphere-black/20">
+                                      Resolve
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -262,6 +367,18 @@ const AdminDashboard = () => {
                     <p className="text-xs text-safesphere-white-muted/60">
                       Set the sensitivity threshold for system-generated alerts (0-100)
                     </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="dataRetention" className="text-safesphere-white">Data Retention Period (days)</Label>
+                      <Input id="dataRetention" type="number" defaultValue="90" className="bg-safesphere-dark-hover border-white/10 text-safesphere-white" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="sessionTimeout" className="text-safesphere-white">Session Timeout (minutes)</Label>
+                      <Input id="sessionTimeout" type="number" defaultValue="30" className="bg-safesphere-dark-hover border-white/10 text-safesphere-white" />
+                    </div>
                   </div>
                   
                   <div className="pt-4">
