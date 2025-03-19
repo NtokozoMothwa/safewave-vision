@@ -11,6 +11,7 @@ import Settings from "./pages/Settings";
 import HealthHistory from "./pages/HealthHistory";
 import GeofencingSettings from "./pages/GeofencingSettings";
 import AdminDashboard from "./pages/AdminDashboard";
+import Users from "./pages/Users";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
@@ -88,6 +89,11 @@ const App = () => {
               <Route path="/admin" element={
                 <RequireAdmin>
                   <AdminDashboard />
+                </RequireAdmin>
+              } />
+              <Route path="/users" element={
+                <RequireAdmin>
+                  <Users />
                 </RequireAdmin>
               } />
               <Route path="*" element={<NotFound />} />
