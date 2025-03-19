@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Settings, Users, ShieldAlert, ActivitySquare, Bell } from 'lucide-react';
+import { Home, Settings, Users, ShieldAlert, ActivitySquare, Bell, Menu, X } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,9 +9,14 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+  
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(prev => !prev);
   };
   
   return (
@@ -75,8 +80,67 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
               <span className="hidden md:block text-sm">Admin</span>
             </div>
+            
+            {/* Mobile menu button */}
+            <button 
+              className="md:hidden p-1.5 rounded-md hover:bg-safesphere-dark-hover transition-colors"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6 text-safesphere-white" />
+              ) : (
+                <Menu className="h-6 w-6 text-safesphere-white" />
+              )}
+            </button>
           </div>
         </div>
+        
+        {/* Mobile navigation menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pt-2 pb-3 px-2 mt-2 border-t border-white/10">
+            <Link 
+              to="/" 
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                isActive('/') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Home className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+            <Link 
+              to="/admin" 
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                isActive('/admin') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <ActivitySquare className="h-4 w-4" />
+              <span>Admin</span>
+            </Link>
+            <Link 
+              to="/users" 
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                isActive('/users') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Users className="h-4 w-4" />
+              <span>Users</span>
+            </Link>
+            <Link 
+              to="/settings" 
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                isActive('/settings') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+          </div>
+        )}
       </header>
       
       <main className="flex-1">
