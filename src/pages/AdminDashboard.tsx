@@ -1,19 +1,37 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/ui/layout';
-import { Grid, Cpu, Database, Server, FileDown, Settings, Users, Bell, Shield, Activity, Clock } from 'lucide-react';
+import { 
+  Grid, Cpu, Database, Server, FileDown, Settings, Users, 
+  Bell, Shield, Activity, Clock, Globe, Download, Code
+} from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminStatCard from '@/components/admin/AdminStatCard';
 import AdminUserActivity from '@/components/admin/AdminUserActivity';
 import AdminUserDistribution from '@/components/admin/AdminUserDistribution';
 import AdminUserTable from '@/components/admin/AdminUserTable';
 import SystemStatusCard from '@/components/admin/SystemStatusCard';
+import ApiKeyManager from '@/components/admin/ApiKeyManager';
+import { useApi } from '@/hooks/useApi';
 
-// Mock data
-const activityData = [
+// Mock data for API request monitoring
+const apiRequestData = [
+  { day: 'Mon', count: 2356 },
+  { day: 'Tue', count: 2864 },
+  { day: 'Wed', count: 3172 },
+  { day: 'Thu', count: 3585 },
+  { day: 'Fri', count: 3268 },
+  { day: 'Sat', count: 2132 },
+  { day: 'Sun', count: 1825 },
+];
+
+const userActivityData = [
   { day: 'Mon', count: 56 },
   { day: 'Tue', count: 64 },
   { day: 'Wed', count: 72 },
@@ -36,14 +54,12 @@ const deviceDistributionData = [
   { name: 'Luxury', value: 12 },
 ];
 
-const apiData = [
-  { day: 'Mon', count: 2356 },
-  { day: 'Tue', count: 2864 },
-  { day: 'Wed', count: 3172 },
-  { day: 'Thu', count: 3585 },
-  { day: 'Fri', count: 3268 },
-  { day: 'Sat', count: 2132 },
-  { day: 'Sun', count: 1825 },
+const endpointUsageData = [
+  { name: 'User data', value: 35 },
+  { name: 'Health', value: 25 },
+  { name: 'Geofencing', value: 20 },
+  { name: 'Auth', value: 15 },
+  { name: 'Config', value: 5 },
 ];
 
 const mockUsers = [
@@ -82,6 +98,49 @@ const mockUsers = [
 ];
 
 const AdminDashboard: React.FC = () => {
+  const { api, loading } = useApi();
+  const [exportFormat, setExportFormat] = useState<string>('json');
+  
+  const handleExportData = () => {
+    // In a real app, this would call the API to generate a report
+    toast.success("Generating export. The file will download shortly.", {
+      description: `Export format: ${exportFormat.toUpperCase()}`
+    });
+    
+    // Simulate download after a short delay
+    setTimeout(() => {
+      const mockData = {
+        users: mockUsers,
+        apiRequests: apiRequestData,
+        systemStatus: "Operational"
+      };
+      
+      let dataStr;
+      let fileName;
+      
+      if (exportFormat === 'json') {
+        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mockData, null, 2));
+        fileName = "safesphere_admin_report.json";
+      } else if (exportFormat === 'csv') {
+        // Simple CSV conversion for demo
+        const headers = "id,name,email,role,status,lastActive\n";
+        const rows = mockUsers.map(u => `${u.id},${u.name},${u.email},${u.role},${u.status},${u.lastActive}`).join("\n");
+        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+        fileName = "safesphere_admin_report.csv";
+      } else {
+        dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(mockData));
+        fileName = "safesphere_admin_report.txt";
+      }
+      
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", fileName);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }, 1500);
+  };
+
   return (
     <Layout>
       <AnimatedTransition className="max-w-7xl mx-auto">
@@ -94,10 +153,22 @@ const AdminDashboard: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-2 mt-4 md:mt-0">
-              <Button variant="outline" className="bg-transparent text-safesphere-white border-white/10">
-                <FileDown className="mr-1.5 h-4 w-4" />
-                Export Report
-              </Button>
+              <div className="flex items-center gap-2">
+                <Select defaultValue={exportFormat} onValueChange={setExportFormat}>
+                  <SelectTrigger className="w-[120px] bg-transparent text-safesphere-white border-white/10">
+                    <SelectValue placeholder="Format" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-safesphere-dark-card border-white/10">
+                    <SelectItem value="json">JSON</SelectItem>
+                    <SelectItem value="csv">CSV</SelectItem>
+                    <SelectItem value="text">Text</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" className="bg-transparent text-safesphere-white border-white/10" onClick={handleExportData}>
+                  <FileDown className="mr-1.5 h-4 w-4" />
+                  Export Report
+                </Button>
+              </div>
               <Button className="bg-safesphere-red hover:bg-safesphere-red/80">
                 <Settings className="mr-1.5 h-4 w-4" />
                 System Settings
@@ -109,7 +180,7 @@ const AdminDashboard: React.FC = () => {
             <TabsList className="bg-safesphere-dark-card border border-white/10 mb-6">
               <TabsTrigger value="overview" className="data-[state=active]:bg-safesphere-dark-hover">Overview</TabsTrigger>
               <TabsTrigger value="users" className="data-[state=active]:bg-safesphere-dark-hover">Users</TabsTrigger>
-              <TabsTrigger value="devices" className="data-[state=active]:bg-safesphere-dark-hover">Devices</TabsTrigger>
+              <TabsTrigger value="api" className="data-[state=active]:bg-safesphere-dark-hover">API</TabsTrigger>
               <TabsTrigger value="system" className="data-[state=active]:bg-safesphere-dark-hover">System</TabsTrigger>
               <TabsTrigger value="logs" className="data-[state=active]:bg-safesphere-dark-hover">Logs</TabsTrigger>
             </TabsList>
@@ -125,12 +196,12 @@ const AdminDashboard: React.FC = () => {
                   subtitle="120 new this week"
                 />
                 <AdminStatCard
-                  title="Active Devices"
-                  value="4,128"
+                  title="API Requests"
+                  value="2.8M"
                   change="+7.2%"
                   trend="up"
-                  icon={<Activity className="h-5 w-5 text-safesphere-success" />}
-                  subtitle="98.7% uptime"
+                  icon={<Globe className="h-5 w-5 text-safesphere-success" />}
+                  subtitle="Daily average"
                 />
                 <AdminStatCard
                   title="System Load"
@@ -152,15 +223,15 @@ const AdminDashboard: React.FC = () => {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <AdminUserActivity 
-                  data={activityData} 
-                  title="New User Signups" 
-                  description="Weekly registration activity"
+                  data={apiRequestData} 
+                  title="API Requests" 
+                  description="Last 7 days of API traffic"
+                  color="#10b981"
                 />
                 <AdminUserActivity 
-                  data={apiData} 
-                  title="API Requests" 
-                  description="Daily API traffic"
-                  color="#10b981"
+                  data={userActivityData} 
+                  title="New User Signups" 
+                  description="Weekly registration activity"
                 />
               </div>
               
@@ -251,7 +322,7 @@ const AdminDashboard: React.FC = () => {
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <AdminUserActivity 
-                  data={activityData} 
+                  data={userActivityData} 
                   title="User Signups" 
                   description="Weekly registrations"
                 />
@@ -265,36 +336,73 @@ const AdminDashboard: React.FC = () => {
               <AdminUserTable users={mockUsers} />
             </TabsContent>
             
-            <TabsContent value="devices" className="space-y-6">
+            <TabsContent value="api" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AdminStatCard
-                  title="Total Devices"
-                  value="4,128"
-                  change="+7.2%"
+                  title="Daily API Calls"
+                  value="2.8M"
+                  change="+15.3%"
                   trend="up"
-                  icon={<Activity className="h-5 w-5 text-safesphere-info" />}
+                  icon={<Globe className="h-5 w-5 text-safesphere-info" />}
                 />
                 <AdminStatCard
-                  title="Connected"
-                  value="3,982"
-                  change="+4.8%"
-                  trend="up"
-                  icon={<Activity className="h-5 w-5 text-safesphere-success" />}
-                />
-                <AdminStatCard
-                  title="Offline"
-                  value="146"
-                  change="-12.3%"
+                  title="Avg Response Time"
+                  value="125ms"
+                  change="-8.2%"
                   trend="down"
-                  icon={<Activity className="h-5 w-5 text-safesphere-warning" />}
+                  icon={<Clock className="h-5 w-5 text-safesphere-success" />}
+                />
+                <AdminStatCard
+                  title="Error Rate"
+                  value="0.36%"
+                  change="+0.12%"
+                  trend="up"
+                  icon={<Code className="h-5 w-5 text-safesphere-warning" />}
                 />
               </div>
               
-              <AdminUserDistribution 
-                data={deviceDistributionData} 
-                title="Device Models" 
-                description="Distribution by device type"
-              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <AdminUserActivity 
+                  data={apiRequestData} 
+                  title="API Traffic" 
+                  description="7-day request volume"
+                  color="#06b6d4"
+                />
+                <AdminUserDistribution 
+                  data={endpointUsageData} 
+                  title="Endpoint Usage" 
+                  description="Distribution by service"
+                />
+              </div>
+              
+              <div className="space-y-4">
+                <ApiKeyManager />
+                
+                <Card className="bg-safesphere-dark-card border-white/10">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center">
+                      <Download className="h-5 w-5 mr-2 text-safesphere-info" />
+                      API Data Export
+                    </CardTitle>
+                    <CardDescription>
+                      Download API documentation and data for integration
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                        <FileDown className="mr-2 h-4 w-4" /> API Documentation
+                      </Button>
+                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                        <FileDown className="mr-2 h-4 w-4" /> Swagger Spec
+                      </Button>
+                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                        <FileDown className="mr-2 h-4 w-4" /> Postman Collection
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
             
             <TabsContent value="system" className="space-y-6">
@@ -369,7 +477,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               
               <AdminUserActivity 
-                data={apiData} 
+                data={apiRequestData} 
                 title="System Load" 
                 description="7-day monitoring"
                 color="#ec4899"
@@ -393,15 +501,15 @@ const AdminDashboard: React.FC = () => {
                   
                   <div className="bg-safesphere-dark rounded-lg p-3 h-[400px] overflow-y-auto font-mono text-sm">
                     <div className="text-safesphere-red">[ERROR] 2023-10-15 14:32:15 - Failed to connect to database cluster DB-East-1-replica</div>
+                    <div className="text-safesphere-warning mt-2">[WARN] 2023-10-15 14:30:45 - Rate limit exceeded for API key: ak_12345... from IP: 192.168.1.105</div>
                     <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:30:22 - User authentication successful: user_id=28456</div>
                     <div className="text-safesphere-warning mt-2">[WARN] 2023-10-15 14:28:43 - High memory usage detected (85%) on server app-server-12</div>
+                    <div className="text-safesphere-info mt-2">[INFO] 2023-10-15 14:26:30 - API key created for client: Enterprise Corp</div>
                     <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:25:17 - New user registration: user_id=38532</div>
                     <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:22:09 - Payment processed successfully: transaction_id=TR-9384756</div>
-                    <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:20:56 - Email notification sent: template=password_reset, recipient=user@example.com</div>
                     <div className="text-safesphere-warning mt-2">[WARN] 2023-10-15 14:18:32 - API rate limit approaching for client_id=CL-45678</div>
                     <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:15:45 - System backup completed successfully. Size: 2.3GB</div>
-                    <div className="text-safesphere-red mt-2">[ERROR] 2023-10-15 14:12:33 - Failed to process payment: transaction_id=TR-9384755, reason=insufficient_funds</div>
-                    <div className="text-safesphere-success mt-2">[INFO] 2023-10-15 14:10:22 - User session expired: user_id=28455, session_duration=2h15m</div>
+                    <div className="text-safesphere-red mt-2">[ERROR] 2023-10-15 14:12:33 - Invalid API request from IP 203.45.67.89: malformed JSON body</div>
                   </div>
                 </CardContent>
               </Card>
