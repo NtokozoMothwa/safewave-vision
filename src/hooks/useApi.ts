@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { apiClient } from '@/services/api';
-import { ApiRequestOptions, ApiResponse } from '@/services/apiTypes';
+import { ApiRequestOptions, ApiResponse, SystemHealthService } from '@/services/apiTypes';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 interface ApiState {
   loading: boolean;
@@ -71,7 +71,7 @@ export function useApi() {
       
       return response;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       
       setState(prev => ({
         ...prev,
@@ -96,6 +96,27 @@ export function useApi() {
         }
       };
     }
+  };
+  
+  /**
+   * Hook to fetch system health status with React Query
+   */
+  const useSystemHealth = (options?: Omit<ApiRequestOptions, 'token'>) => {
+    return useQuery({
+      queryKey: ['system', 'health'],
+      queryFn: async () => {
+        const response = await makeAuthRequest<SystemHealthService>(
+          '/system/health',
+          'GET',
+          opts => apiClient.system.getHealth(opts),
+          options
+        );
+        if (!response.success) {
+          throw new Error(response.error?.message || 'Failed to fetch system health');
+        }
+        return response.data;
+      }
+    });
   };
   
   /**
@@ -201,6 +222,7 @@ export function useApi() {
     clearErrors,
     exportData,
     apiRequest,
+    useSystemHealth,
     api: {
       docs: {
         getApiDocs: (format: 'json' | 'yaml' | 'html' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 

@@ -20,6 +20,18 @@ export interface ApiRequestOptions {
   showErrors?: boolean;
 }
 
+export interface SystemHealthService {
+  status: string;
+  uptime: number;
+  message: string;
+  lastChecked: string;
+  services: Array<{
+    name: string;
+    status: string;
+    responseTime: number;
+  }>;
+}
+
 export interface ApiServices {
   docs: {
     getApiDocs: (format?: 'json' | 'yaml' | 'html', options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
@@ -49,7 +61,7 @@ export interface ApiServices {
     exportZones: (format?: 'json' | 'csv' | 'kml', options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
   };
   system: {
-    getHealth: (options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
+    getHealth: (options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse<SystemHealthService>>;
     getApiUsage: (period?: 'day' | 'week' | 'month', options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
     getLogs: (level?: 'info' | 'warn' | 'error' | 'all', options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
   };

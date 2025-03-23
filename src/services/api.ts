@@ -1,5 +1,5 @@
 
-import { ApiRequestOptions, ApiResponse, ApiServices } from './apiTypes';
+import { ApiRequestOptions, ApiResponse, ApiServices, SystemHealthService } from './apiTypes';
 
 class ApiClient {
   private baseUrl: string;
@@ -76,19 +76,58 @@ class ApiClient {
       };
     }
     
-    // Default error response for demonstration
-    const errorResponse = {
-      success: false,
-      error: {
-        code: 'not_implemented',
-        message: 'This endpoint is not implemented in the demo',
-      },
-      meta: {
-        timestamp: new Date().toISOString()
-      }
-    };
+    // Handle geofencing zones endpoint with some mock data
+    if (endpoint === '/geofencing/zones' && method === 'GET') {
+      return {
+        success: true,
+        data: [
+          { 
+            id: 'zone1', 
+            name: 'Home', 
+            type: 'safe', 
+            coordinates: { lat: 37.7749, lng: -122.4194 },
+            radius: 500
+          },
+          { 
+            id: 'zone2', 
+            name: 'Work', 
+            type: 'safe', 
+            coordinates: { lat: 37.7833, lng: -122.4167 },
+            radius: 300
+          },
+          { 
+            id: 'zone3', 
+            name: 'Restricted Area', 
+            type: 'danger', 
+            coordinates: { lat: 37.8044, lng: -122.2711 },
+            radius: 200
+          }
+        ] as unknown as T,
+        meta: {
+          timestamp: new Date().toISOString(),
+          total: 3
+        }
+      };
+    }
     
-    // For demo purposes, return successful responses
+    // Handle user health history with mock data
+    if (endpoint.includes('/health/') && endpoint.includes('/history')) {
+      return {
+        success: true,
+        data: [
+          { date: '2023-10-01', heartRate: 68, bloodPressure: '120/80', activity: 8500 },
+          { date: '2023-10-02', heartRate: 72, bloodPressure: '122/82', activity: 7800 },
+          { date: '2023-10-03', heartRate: 75, bloodPressure: '125/85', activity: 6200 },
+          { date: '2023-10-04', heartRate: 70, bloodPressure: '118/78', activity: 9100 },
+          { date: '2023-10-05', heartRate: 68, bloodPressure: '120/80', activity: 8700 },
+        ] as unknown as T,
+        meta: {
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+    
+    // For demo purposes, return successful responses for most endpoints
     return successResponse;
   }
   
@@ -154,7 +193,7 @@ class ApiClient {
   get system() {
     return {
       getHealth: (options?: ApiRequestOptions) => 
-        this.apiRequest('/system/health', 'GET', options),
+        this.apiRequest<SystemHealthService>('/system/health', 'GET', options),
       getApiUsage: (period: 'day' | 'week' | 'month' = 'day', options?: ApiRequestOptions) => 
         this.apiRequest('/system/metrics/api', 'GET', { ...options, params: { ...options?.params, period } }),
       getLogs: (level: 'info' | 'warn' | 'error' | 'all' = 'all', options?: ApiRequestOptions) => 
