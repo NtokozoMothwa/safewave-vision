@@ -1,336 +1,304 @@
 
-import React from 'react';
-import { Layout } from '@/components/ui/layout';
+import { useState } from 'react';
+import { useApi } from '@/hooks/useApi';
+import { toast } from 'sonner';
+import Header from '@/components/Header';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
+import { Copy, Download, Code, FileJson } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code } from 'lucide-react';
 
-const ApiDocs: React.FC = () => {
+const ApiDocs = () => {
+  const { api, getLoadingState } = useApi();
+  const [format, setFormat] = useState<'json' | 'yaml' | 'html'>('json');
+  const [apiSpec, setApiSpec] = useState<string>('');
+  
+  const isLoading = getLoadingState('/docs', 'GET') || getLoadingState('/docs/openapi', 'GET');
+  
+  const fetchApiDocs = async () => {
+    const response = await api.docs.getApiDocs(format);
+    if (response.success && response.data) {
+      if (typeof response.data === 'string') {
+        setApiSpec(response.data);
+      } else {
+        setApiSpec(JSON.stringify(response.data, null, 2));
+      }
+      toast.success('API documentation loaded successfully');
+    }
+  };
+  
+  const fetchOpenApiSpec = async () => {
+    const response = await api.docs.getOpenApiSpec();
+    if (response.success && response.data) {
+      setApiSpec(JSON.stringify(response.data, null, 2));
+      toast.success('OpenAPI specification loaded successfully');
+    }
+  };
+  
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(apiSpec);
+    toast.success('Copied to clipboard');
+  };
+  
+  const downloadSpec = () => {
+    const element = document.createElement('a');
+    const file = new Blob([apiSpec], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `safesphere-api-${format}.${format === 'html' ? 'html' : format === 'yaml' ? 'yaml' : 'json'}`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    toast.success('Downloaded API specification');
+  };
+  
+  // Demo API documentation
+  const demoApiDocs = {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "SafeSphere API",
+      "version": "1.0.0",
+      "description": "API for SafeSphere health and safety monitoring system"
+    },
+    "servers": [
+      {
+        "url": "https://api.safesphere.example.com/v1",
+        "description": "Production API Server"
+      }
+    ],
+    "paths": {
+      "/users": {
+        "get": {
+          "summary": "Get all users",
+          "description": "Returns a list of all users"
+        },
+        "post": {
+          "summary": "Create a new user",
+          "description": "Creates a new user in the system"
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Get user by ID",
+          "description": "Returns a single user by ID"
+        },
+        "put": {
+          "summary": "Update user",
+          "description": "Updates an existing user"
+        },
+        "delete": {
+          "summary": "Delete user",
+          "description": "Deletes a user from the system"
+        }
+      },
+      "/health/{userId}/history": {
+        "get": {
+          "summary": "Get health history",
+          "description": "Returns historical health data for a user"
+        }
+      },
+      "/health/{userId}/status": {
+        "get": {
+          "summary": "Get current health status",
+          "description": "Returns the current health status for a user"
+        }
+      }
+    }
+  };
+  
   return (
-    <Layout>
-      <AnimatedTransition className="max-w-7xl mx-auto">
-        <div className="px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-safesphere-white">API Documentation</h1>
-              <p className="text-safesphere-white-muted/60">
-                Integration guides for corporate systems
-              </p>
+    <div className="min-h-screen bg-mesh-pattern">
+      <Header />
+      <AnimatedTransition className="max-w-7xl mx-auto px-4 pt-24 pb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">API Documentation</h1>
+            <p className="text-safesphere-white-muted/60 mt-2">
+              Integrate SafeSphere with your systems using our comprehensive API
+            </p>
+          </div>
+          <div className="flex gap-2 mt-4 md:mt-0">
+            <Button 
+              variant="outline" 
+              onClick={copyToClipboard} 
+              disabled={!apiSpec}
+            >
+              <Copy className="mr-2 h-4 w-4" /> Copy
+            </Button>
+            <Button 
+              onClick={downloadSpec} 
+              disabled={!apiSpec}
+            >
+              <Download className="mr-2 h-4 w-4" /> Download
+            </Button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-1 glass-card rounded-2xl p-5">
+            <h2 className="text-lg font-semibold mb-4">API Resources</h2>
+            <ul className="space-y-2">
+              <li className="py-2 px-3 bg-safesphere-dark-hover rounded-lg text-sm font-medium">
+                Users
+              </li>
+              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
+                Health Data
+              </li>
+              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
+                Geofencing
+              </li>
+              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
+                System Monitoring
+              </li>
+              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
+                Webhooks
+              </li>
+            </ul>
+            
+            <h2 className="text-lg font-semibold mt-6 mb-4">Documentation Format</h2>
+            <div className="space-y-2">
+              <button 
+                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'json' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
+                onClick={() => setFormat('json')}
+              >
+                <FileJson className="inline-block mr-2 h-4 w-4" /> JSON
+              </button>
+              <button 
+                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'yaml' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
+                onClick={() => setFormat('yaml')}
+              >
+                <Code className="inline-block mr-2 h-4 w-4" /> YAML
+              </button>
+              <button 
+                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'html' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
+                onClick={() => setFormat('html')}
+              >
+                <Code className="inline-block mr-2 h-4 w-4" /> HTML
+              </button>
+            </div>
+            
+            <div className="mt-6">
+              <Button 
+                className="w-full"
+                onClick={fetchApiDocs}
+                disabled={isLoading}
+              >
+                Load API Docs
+              </Button>
+              <Button 
+                className="w-full mt-2"
+                variant="outline"
+                onClick={fetchOpenApiSpec}
+                disabled={isLoading}
+              >
+                Load OpenAPI Spec
+              </Button>
             </div>
           </div>
-
-          <Card className="bg-safesphere-dark-card border-white/10 mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg text-safesphere-white flex items-center gap-2">
-                <Code className="h-5 w-5 text-safesphere-info" />
-                API Overview
-              </CardTitle>
-              <CardDescription className="text-safesphere-white-muted/70">
-                SafeSphere provides a comprehensive RESTful API for integration with corporate systems.
-                All endpoints return standardized JSON responses and support authentication via API tokens.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">Base URL</h3>
-                  <div className="bg-black rounded-md p-3">
-                    <code className="text-safesphere-success">https://api.safesphere.example.com/v1</code>
-                  </div>
+          
+          <div className="md:col-span-3 glass-card rounded-2xl p-5">
+            <Tabs defaultValue="documentation">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="documentation">Documentation</TabsTrigger>
+                <TabsTrigger value="examples">Code Examples</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="documentation" className="mt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold mb-2">API Specification</h2>
+                  <p className="text-safesphere-white-muted/60 text-sm">
+                    Full documentation of available endpoints and their parameters
+                  </p>
                 </div>
                 
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">Authentication</h3>
-                  <p className="text-safesphere-white-muted/70 mb-2">
-                    All API requests require authentication using a Bearer token in the Authorization header:
-                  </p>
-                  <div className="bg-black rounded-md p-3">
-                    <code className="text-safesphere-info">Authorization: Bearer YOUR_API_KEY</code>
+                {isLoading ? (
+                  <div className="flex justify-center p-8">
+                    <div className="animate-pulse">Loading API documentation...</div>
                   </div>
+                ) : (
+                  <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto max-h-[600px] text-sm">
+                    {apiSpec || JSON.stringify(demoApiDocs, null, 2)}
+                  </pre>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="examples" className="mt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold mb-2">Code Examples</h2>
+                  <p className="text-safesphere-white-muted/60 text-sm">
+                    Sample code for integrating with the SafeSphere API
+                  </p>
                 </div>
                 
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">Response Format</h3>
-                  <p className="text-safesphere-white-muted/70 mb-2">
-                    All responses follow this standard format:
-                  </p>
-                  <div className="bg-black rounded-md p-3">
-                    <pre className="text-safesphere-warning whitespace-pre">
-{`{
-  "success": true|false,
-  "data": { ... },  // Present on success
-  "error": {        // Present on failure
-    "code": "error_code",
-    "message": "Error description"
-  }
-}`}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Tabs defaultValue="users" className="w-full">
-            <TabsList className="bg-safesphere-dark border-white/10 mb-4">
-              <TabsTrigger value="users">Users API</TabsTrigger>
-              <TabsTrigger value="health">Health API</TabsTrigger>
-              <TabsTrigger value="geofencing">Geofencing API</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="users">
-              <Card className="bg-safesphere-dark-card border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-lg text-safesphere-white">Users API</CardTitle>
-                  <CardDescription className="text-safesphere-white-muted/70">
-                    Endpoints for managing users and authentication
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader className="bg-safesphere-dark">
-                      <TableRow className="hover:bg-safesphere-dark border-white/10">
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Endpoint</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Method</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Description</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/users</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-success/20 text-safesphere-success">GET</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Get all users</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/users/:id</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-success/20 text-safesphere-success">GET</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Get a specific user</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/users</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-info/20 text-safesphere-info">POST</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Create a new user</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/users/:id</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-warning/20 text-safesphere-warning">PUT</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Update a user</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/users/:id</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-red/20 text-safesphere-red">DELETE</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Delete a user</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="health">
-              <Card className="bg-safesphere-dark-card border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-lg text-safesphere-white">Health API</CardTitle>
-                  <CardDescription className="text-safesphere-white-muted/70">
-                    Endpoints for retrieving and logging health information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader className="bg-safesphere-dark">
-                      <TableRow className="hover:bg-safesphere-dark border-white/10">
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Endpoint</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Method</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Description</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/health/:userId/history</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-success/20 text-safesphere-success">GET</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Get user health history</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/health/:userId/status</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-success/20 text-safesphere-success">GET</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Get current health status</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/health/:userId/events</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-info/20 text-safesphere-info">POST</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Log a health event</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="geofencing">
-              <Card className="bg-safesphere-dark-card border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-lg text-safesphere-white">Geofencing API</CardTitle>
-                  <CardDescription className="text-safesphere-white-muted/70">
-                    Endpoints for geofencing zone management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader className="bg-safesphere-dark">
-                      <TableRow className="hover:bg-safesphere-dark border-white/10">
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Endpoint</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Method</TableHead>
-                        <TableHead className="text-safesphere-white-muted/70 font-medium">Description</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/geofencing/zones</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-success/20 text-safesphere-success">GET</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Get all geofencing zones</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/geofencing/zones</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-info/20 text-safesphere-info">POST</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Create a new zone</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/geofencing/zones/:id</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-warning/20 text-safesphere-warning">PUT</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Update a zone</TableCell>
-                      </TableRow>
-                      <TableRow className="hover:bg-safesphere-dark-hover border-white/10">
-                        <TableCell className="font-medium text-safesphere-white">/geofencing/zones/:id</TableCell>
-                        <TableCell>
-                          <Badge className="bg-safesphere-red/20 text-safesphere-red">DELETE</Badge>
-                        </TableCell>
-                        <TableCell className="text-safesphere-white-muted/70">Delete a zone</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-          
-          <Card className="mt-6 bg-safesphere-dark-card border-white/10">
-            <CardHeader>
-              <CardTitle className="text-lg text-safesphere-white">Integration Examples</CardTitle>
-              <CardDescription className="text-safesphere-white-muted/70">
-                Code examples for common integrations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">JavaScript/TypeScript</h3>
-                  <div className="bg-black rounded-md p-3">
-                    <pre className="text-safesphere-purple whitespace-pre overflow-auto">
-{`// Example: Fetch users
-const fetchUsers = async (apiKey) => {
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-md font-medium mb-2">JavaScript/TypeScript</h3>
+                    <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto text-sm">
+{`// Fetch user data
+const fetchUsers = async () => {
   const response = await fetch('https://api.safesphere.example.com/v1/users', {
-    method: 'GET',
     headers: {
-      'Authorization': \`Bearer \${apiKey}\`,
+      'Authorization': 'Bearer YOUR_API_TOKEN',
       'Content-Type': 'application/json'
     }
   });
   
-  return await response.json();
+  const data = await response.json();
+  return data;
+};
+
+// Create a new user
+const createUser = async (userData) => {
+  const response = await fetch('https://api.safesphere.example.com/v1/users', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_API_TOKEN',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(userData)
+  });
+  
+  const data = await response.json();
+  return data;
 };`}
                     </pre>
                   </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">Python</h3>
-                  <div className="bg-black rounded-md p-3">
-                    <pre className="text-safesphere-info whitespace-pre overflow-auto">
-{`# Example: Fetch user health data
-import requests
+                  
+                  <div>
+                    <h3 className="text-md font-medium mb-2">Python</h3>
+                    <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto text-sm">
+{`import requests
 
-def get_user_health(user_id, api_key):
+API_BASE = 'https://api.safesphere.example.com/v1'
+API_TOKEN = 'YOUR_API_TOKEN'
+
+def get_users():
     headers = {
-        'Authorization': f'Bearer {api_key}',
+        'Authorization': f'Bearer {API_TOKEN}',
         'Content-Type': 'application/json'
     }
-    
-    response = requests.get(
-        f'https://api.safesphere.example.com/v1/health/{user_id}/status',
-        headers=headers
+    response = requests.get(f'{API_BASE}/users', headers=headers)
+    return response.json()
+
+def create_user(user_data):
+    headers = {
+        'Authorization': f'Bearer {API_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.post(
+        f'{API_BASE}/users', 
+        headers=headers, 
+        json=user_data
     )
-    
     return response.json()`}
                     </pre>
                   </div>
                 </div>
-                
-                <div>
-                  <h3 className="text-safesphere-white font-medium mb-2">Java</h3>
-                  <div className="bg-black rounded-md p-3">
-                    <pre className="text-safesphere-red-light whitespace-pre overflow-auto">
-{`// Example: Create a geofencing zone
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.URI;
-
-public class SafeSphereClient {
-    private final String apiKey;
-    private final HttpClient client = HttpClient.newHttpClient();
-    
-    public SafeSphereClient(String apiKey) {
-        this.apiKey = apiKey;
-    }
-    
-    public String createGeofencingZone(String zoneData) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI("https://api.safesphere.example.com/v1/geofencing/zones"))
-            .header("Authorization", "Bearer " + apiKey)
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(zoneData))
-            .build();
-            
-        HttpResponse<String> response = client.send(
-            request, HttpResponse.BodyHandlers.ofString());
-            
-        return response.body();
-    }
-}`}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </AnimatedTransition>
-    </Layout>
+    </div>
   );
 };
 

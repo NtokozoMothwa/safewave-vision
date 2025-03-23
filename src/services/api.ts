@@ -1,3 +1,4 @@
+
 /**
  * SafeSphere API Client
  * 
@@ -14,7 +15,7 @@ export interface ApiRequestOptions {
   params?: Record<string, string>;
   body?: any;
   token?: string;
-  format?: 'json' | 'xml' | 'csv';
+  format?: 'json' | 'xml' | 'csv' | 'yaml' | 'kml' | 'html';
   timeout?: number;
   retries?: number;
   showErrors?: boolean;
@@ -47,7 +48,11 @@ const createHeaders = (options?: ApiRequestOptions): Headers => {
   const headers = new Headers({
     'Content-Type': 'application/json',
     'Accept': options?.format === 'xml' ? 'application/xml' :
-              options?.format === 'csv' ? 'text/csv' : 'application/json',
+              options?.format === 'csv' ? 'text/csv' :
+              options?.format === 'yaml' ? 'application/yaml' :
+              options?.format === 'kml' ? 'application/vnd.google-earth.kml+xml' :
+              options?.format === 'html' ? 'text/html' :
+              'application/json',
   });
 
   // Add authentication token if provided

@@ -18,6 +18,7 @@ import PredictiveInsights from './PredictiveInsights';
 import SecurityControls from './SecurityControls';
 import UserGuidePanel from './UserGuidePanel';
 import ProductEditions from './ProductEditions';
+import ApiStatus from './ApiStatus';
 
 const Dashboard: React.FC = () => {
   return (
@@ -91,6 +92,19 @@ const Dashboard: React.FC = () => {
             <LocationTracking />
             <GeofencingMap />
           </div>
+        </div>
+        
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">API & System Status</h2>
+            <Link 
+              to="/api-docs" 
+              className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+            >
+              <Code size={14} /> View API Documentation
+            </Link>
+          </div>
+          <ApiStatus />
         </div>
         
         <div className="mb-6">

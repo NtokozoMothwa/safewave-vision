@@ -10,6 +10,7 @@ import Models from "./pages/Models";
 import Settings from "./pages/Settings";
 import HealthHistory from "./pages/HealthHistory";
 import GeofencingSettings from "./pages/GeofencingSettings";
+import ApiDocs from "./pages/ApiDocs";
 import AdminDashboard from "./pages/AdminDashboard";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
@@ -84,6 +85,11 @@ const App = () => {
               <Route path="/geofencing" element={
                 <RequireAuth>
                   <GeofencingSettings />
+                </RequireAuth>
+              } />
+              <Route path="/api-docs" element={
+                <RequireAuth>
+                  <ApiDocs />
                 </RequireAuth>
               } />
               <Route path="/admin" element={
