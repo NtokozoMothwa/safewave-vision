@@ -157,10 +157,10 @@ export function useApi() {
         dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data, null, 2));
         fileNameWithExt = `${fileName}.json`;
       } else if (format === 'csv') {
-        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(response.data);
+        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(String(response.data));
         fileNameWithExt = `${fileName}.csv`;
       } else {
-        dataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(response.data);
+        dataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(String(response.data));
         fileNameWithExt = `${fileName}.xml`;
       }
       

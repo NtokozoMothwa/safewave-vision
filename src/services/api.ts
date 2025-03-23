@@ -1,4 +1,3 @@
-
 /**
  * SafeSphere API Client
  * 
@@ -18,6 +17,7 @@ export interface ApiRequestOptions {
   format?: 'json' | 'xml' | 'csv';
   timeout?: number;
   retries?: number;
+  showErrors?: boolean;
 }
 
 // API response interface
@@ -196,6 +196,8 @@ export const apiRequest = async <T>(
  * API client with endpoints for different resources
  */
 export const apiClient = {
+  apiRequest,
+  
   // Documentation endpoints
   docs: {
     /**
