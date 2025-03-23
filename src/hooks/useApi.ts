@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { apiClient, ApiRequestOptions, ApiResponse } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
@@ -145,7 +144,7 @@ export function useApi() {
     const response = await makeAuthRequest(
       endpoint, 
       'GET',
-      opts => apiRequest(endpoint, 'GET', { ...opts, format }),
+      opts => apiClient.apiRequest(endpoint, 'GET', { ...opts, format }),
       options
     );
     
