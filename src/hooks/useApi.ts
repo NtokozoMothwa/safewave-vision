@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { apiClient, ApiRequestOptions, ApiResponse } from '@/services/api';
+import { apiClient } from '@/services/api';
+import { ApiRequestOptions, ApiResponse } from '@/services/apiTypes';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
@@ -145,22 +146,24 @@ export function useApi() {
     const response = await makeAuthRequest(
       endpoint, 
       'GET',
-      opts => apiClient.apiRequest(endpoint, 'GET', { ...opts, format }),
+      (opts) => apiClient.apiRequest(endpoint, 'GET', { ...opts, format }),
       options
     );
     
     if (response.success && response.data) {
-      let dataStr;
-      let fileNameWithExt;
+      let dataStr: string;
+      let fileNameWithExt: string;
       
       if (format === 'json') {
         dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data, null, 2));
         fileNameWithExt = `${fileName}.json`;
       } else if (format === 'csv') {
-        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(String(response.data));
+        const csvData = typeof response.data === 'string' ? response.data : String(response.data);
+        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvData);
         fileNameWithExt = `${fileName}.csv`;
       } else {
-        dataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(String(response.data));
+        const xmlData = typeof response.data === 'string' ? response.data : String(response.data);
+        dataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(xmlData);
         fileNameWithExt = `${fileName}.xml`;
       }
       

@@ -1,303 +1,267 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApi } from '@/hooks/useApi';
-import { toast } from 'sonner';
 import Header from '@/components/Header';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button';
-import { Copy, Download, Code, FileJson } from 'lucide-react';
-import AnimatedTransition from '@/components/AnimatedTransition';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Check, X, Copy, Code, FileJson, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ApiDocs = () => {
-  const { api, getLoadingState } = useApi();
-  const [format, setFormat] = useState<'json' | 'yaml' | 'html'>('json');
-  const [apiSpec, setApiSpec] = useState<string>('');
+  const { api } = useApi();
+  const [apiSpec, setApiSpec] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
-  const isLoading = getLoadingState('/docs', 'GET') || getLoadingState('/docs/openapi', 'GET');
-  
-  const fetchApiDocs = async () => {
-    const response = await api.docs.getApiDocs(format);
-    if (response.success && response.data) {
-      if (typeof response.data === 'string') {
-        setApiSpec(response.data);
-      } else {
-        setApiSpec(JSON.stringify(response.data, null, 2));
+  useEffect(() => {
+    const fetchApiDocs = async () => {
+      setLoading(true);
+      try {
+        const response = await api.docs.getOpenApiSpec();
+        if (response.success && response.data) {
+          setApiSpec(response.data);
+        } else {
+          toast.error("Failed to load API documentation");
+        }
+      } catch (error) {
+        console.error("Error fetching API docs:", error);
+        toast.error("Error loading API documentation");
+      } finally {
+        setLoading(false);
       }
-      toast.success('API documentation loaded successfully');
+    };
+    
+    fetchApiDocs();
+  }, [api.docs]);
+  
+  const handleCopyCode = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Code copied to clipboard");
+  };
+  
+  const downloadDocs = async (format: 'json' | 'yaml' | 'html') => {
+    try {
+      const response = await api.docs.getApiDocs(format);
+      if (response.success && response.data) {
+        let fileContent, mimeType, fileName;
+        
+        if (format === 'json') {
+          fileContent = JSON.stringify(response.data, null, 2);
+          mimeType = 'application/json';
+          fileName = 'safesphere-api-docs.json';
+        } else if (format === 'yaml') {
+          fileContent = String(response.data);
+          mimeType = 'application/yaml';
+          fileName = 'safesphere-api-docs.yaml';
+        } else {
+          fileContent = String(response.data);
+          mimeType = 'text/html';
+          fileName = 'safesphere-api-docs.html';
+        }
+        
+        const blob = new Blob([fileContent], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast.success(`API documentation downloaded as ${format.toUpperCase()}`);
+      }
+    } catch (error) {
+      toast.error(`Failed to download API documentation as ${format.toUpperCase()}`);
     }
   };
   
-  const fetchOpenApiSpec = async () => {
-    const response = await api.docs.getOpenApiSpec();
-    if (response.success && response.data) {
-      setApiSpec(JSON.stringify(response.data, null, 2));
-      toast.success('OpenAPI specification loaded successfully');
-    }
-  };
-  
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(apiSpec);
-    toast.success('Copied to clipboard');
-  };
-  
-  const downloadSpec = () => {
-    const element = document.createElement('a');
-    const file = new Blob([apiSpec], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = `safesphere-api-${format}.${format === 'html' ? 'html' : format === 'yaml' ? 'yaml' : 'json'}`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    toast.success('Downloaded API specification');
-  };
-  
-  // Demo API documentation
-  const demoApiDocs = {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "SafeSphere API",
-      "version": "1.0.0",
-      "description": "API for SafeSphere health and safety monitoring system"
+  // Mock API endpoints for demo
+  const mockEndpoints = [
+    {
+      path: '/system/health',
+      method: 'GET',
+      description: 'Get current system health status',
+      response: {
+        success: true,
+        data: {
+          status: 'healthy',
+          uptime: 99.98,
+          services: [
+            { name: 'API Gateway', status: 'up', responseTime: 120 },
+          ]
+        }
+      }
     },
-    "servers": [
-      {
-        "url": "https://api.safesphere.example.com/v1",
-        "description": "Production API Server"
+    {
+      path: '/users',
+      method: 'GET',
+      description: 'Get all users',
+      response: {
+        success: true,
+        data: [
+          { id: '1', name: 'John Doe', email: 'john@example.com' }
+        ]
       }
-    ],
-    "paths": {
-      "/users": {
-        "get": {
-          "summary": "Get all users",
-          "description": "Returns a list of all users"
-        },
-        "post": {
-          "summary": "Create a new user",
-          "description": "Creates a new user in the system"
-        }
-      },
-      "/users/{id}": {
-        "get": {
-          "summary": "Get user by ID",
-          "description": "Returns a single user by ID"
-        },
-        "put": {
-          "summary": "Update user",
-          "description": "Updates an existing user"
-        },
-        "delete": {
-          "summary": "Delete user",
-          "description": "Deletes a user from the system"
-        }
-      },
-      "/health/{userId}/history": {
-        "get": {
-          "summary": "Get health history",
-          "description": "Returns historical health data for a user"
-        }
-      },
-      "/health/{userId}/status": {
-        "get": {
-          "summary": "Get current health status",
-          "description": "Returns the current health status for a user"
+    },
+    {
+      path: '/health/{userId}/status',
+      method: 'GET',
+      description: 'Get health status for a specific user',
+      response: {
+        success: true,
+        data: {
+          heartRate: 75,
+          bloodPressure: { systolic: 120, diastolic: 80 },
+          temperature: 98.6
         }
       }
     }
-  };
+  ];
   
   return (
     <div className="min-h-screen bg-mesh-pattern">
       <Header />
-      <AnimatedTransition className="max-w-7xl mx-auto px-4 pt-24 pb-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">API Documentation</h1>
-            <p className="text-safesphere-white-muted/60 mt-2">
-              Integrate SafeSphere with your systems using our comprehensive API
-            </p>
-          </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <Button 
-              variant="outline" 
-              onClick={copyToClipboard} 
-              disabled={!apiSpec}
+      <div className="max-w-7xl mx-auto px-4 pt-20 pb-10">
+        <div className="glass-card rounded-2xl p-6 mb-8">
+          <h1 className="text-3xl font-bold mb-2">API Documentation</h1>
+          <p className="text-safesphere-white-muted/60 mb-6">
+            Comprehensive documentation for integrating with the SafeSphere API.
+          </p>
+          
+          <div className="flex flex-wrap gap-4 mb-8">
+            <button 
+              onClick={() => downloadDocs('json')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-safesphere-dark-card hover:bg-safesphere-dark-hover button-hover"
             >
-              <Copy className="mr-2 h-4 w-4" /> Copy
-            </Button>
-            <Button 
-              onClick={downloadSpec} 
-              disabled={!apiSpec}
+              <FileJson size={16} />
+              <span>Download as JSON</span>
+            </button>
+            <button 
+              onClick={() => downloadDocs('yaml')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-safesphere-dark-card hover:bg-safesphere-dark-hover button-hover"
             >
-              <Download className="mr-2 h-4 w-4" /> Download
-            </Button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-1 glass-card rounded-2xl p-5">
-            <h2 className="text-lg font-semibold mb-4">API Resources</h2>
-            <ul className="space-y-2">
-              <li className="py-2 px-3 bg-safesphere-dark-hover rounded-lg text-sm font-medium">
-                Users
-              </li>
-              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
-                Health Data
-              </li>
-              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
-                Geofencing
-              </li>
-              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
-                System Monitoring
-              </li>
-              <li className="py-2 px-3 hover:bg-safesphere-dark-hover rounded-lg text-sm">
-                Webhooks
-              </li>
-            </ul>
-            
-            <h2 className="text-lg font-semibold mt-6 mb-4">Documentation Format</h2>
-            <div className="space-y-2">
-              <button 
-                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'json' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
-                onClick={() => setFormat('json')}
-              >
-                <FileJson className="inline-block mr-2 h-4 w-4" /> JSON
-              </button>
-              <button 
-                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'yaml' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
-                onClick={() => setFormat('yaml')}
-              >
-                <Code className="inline-block mr-2 h-4 w-4" /> YAML
-              </button>
-              <button 
-                className={`w-full py-2 px-3 rounded-lg text-sm text-left ${format === 'html' ? 'bg-safesphere-dark-hover font-medium' : 'hover:bg-safesphere-dark-hover'}`}
-                onClick={() => setFormat('html')}
-              >
-                <Code className="inline-block mr-2 h-4 w-4" /> HTML
-              </button>
-            </div>
-            
-            <div className="mt-6">
-              <Button 
-                className="w-full"
-                onClick={fetchApiDocs}
-                disabled={isLoading}
-              >
-                Load API Docs
-              </Button>
-              <Button 
-                className="w-full mt-2"
-                variant="outline"
-                onClick={fetchOpenApiSpec}
-                disabled={isLoading}
-              >
-                Load OpenAPI Spec
-              </Button>
-            </div>
+              <FileText size={16} />
+              <span>Download as YAML</span>
+            </button>
+            <button 
+              onClick={() => downloadDocs('html')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-safesphere-dark-card hover:bg-safesphere-dark-hover button-hover"
+            >
+              <Code size={16} />
+              <span>Download as HTML</span>
+            </button>
           </div>
           
-          <div className="md:col-span-3 glass-card rounded-2xl p-5">
-            <Tabs defaultValue="documentation">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="documentation">Documentation</TabsTrigger>
-                <TabsTrigger value="examples">Code Examples</TabsTrigger>
-              </TabsList>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+              <p className="mt-4 text-safesphere-white-muted/60">Loading API documentation...</p>
+            </div>
+          ) : (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">API Endpoints</h2>
               
-              <TabsContent value="documentation" className="mt-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold mb-2">API Specification</h2>
-                  <p className="text-safesphere-white-muted/60 text-sm">
-                    Full documentation of available endpoints and their parameters
-                  </p>
-                </div>
-                
-                {isLoading ? (
-                  <div className="flex justify-center p-8">
-                    <div className="animate-pulse">Loading API documentation...</div>
-                  </div>
-                ) : (
-                  <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto max-h-[600px] text-sm">
-                    {apiSpec || JSON.stringify(demoApiDocs, null, 2)}
+              <Accordion type="single" collapsible className="w-full">
+                {mockEndpoints.map((endpoint, index) => (
+                  <AccordionItem key={index} value={`endpoint-${index}`} className="border-safesphere-dark-hover">
+                    <AccordionTrigger className="py-4 text-left">
+                      <div className="flex items-start">
+                        <span className={`px-2 py-1 rounded text-xs mr-3 ${
+                          endpoint.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
+                          endpoint.method === 'POST' ? 'bg-green-500/20 text-green-400' :
+                          endpoint.method === 'PUT' ? 'bg-yellow-500/20 text-yellow-400' :
+                          endpoint.method === 'DELETE' ? 'bg-red-500/20 text-red-400' :
+                          'bg-purple-500/20 text-purple-400'
+                        }`}>
+                          {endpoint.method}
+                        </span>
+                        <div>
+                          <div className="font-mono text-sm">{endpoint.path}</div>
+                          <div className="text-xs text-safesphere-white-muted/60 mt-1">{endpoint.description}</div>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pl-10 pr-4 py-3">
+                        <h4 className="text-sm font-medium mb-2">Example Response</h4>
+                        <div className="relative">
+                          <pre className="bg-safesphere-dark-card p-4 rounded-lg overflow-x-auto font-mono text-xs">
+                            {JSON.stringify(endpoint.response, null, 2)}
+                          </pre>
+                          <button 
+                            onClick={() => handleCopyCode(JSON.stringify(endpoint.response, null, 2))}
+                            className="absolute top-2 right-2 p-1.5 rounded-md bg-safesphere-dark-hover/50 hover:bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+                          >
+                            <Copy size={14} />
+                          </button>
+                        </div>
+                        
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium mb-2">Code Example</h4>
+                          <div className="relative">
+                            <pre className="bg-safesphere-dark-card p-4 rounded-lg overflow-x-auto font-mono text-xs">
+{`// Using fetch API
+fetch("https://api.safesphere.example.com${endpoint.path}", {
+  method: "${endpoint.method}",
+  headers: {
+    "Authorization": "Bearer YOUR_API_TOKEN",
+    "Content-Type": "application/json"
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error("Error:", error));`}
+                            </pre>
+                            <button 
+                              onClick={() => handleCopyCode(`// Using fetch API
+fetch("https://api.safesphere.example.com${endpoint.path}", {
+  method: "${endpoint.method}",
+  headers: {
+    "Authorization": "Bearer YOUR_API_TOKEN",
+    "Content-Type": "application/json"
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error("Error:", error));`)}
+                              className="absolute top-2 right-2 p-1.5 rounded-md bg-safesphere-dark-hover/50 hover:bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+                            >
+                              <Copy size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+              
+              <div className="mt-8 p-4 border border-safesphere-dark-hover rounded-lg">
+                <h3 className="text-lg font-medium mb-2">Authentication</h3>
+                <p className="text-safesphere-white-muted/80 text-sm mb-3">
+                  All API requests require authentication. Include your API token in the Authorization header:
+                </p>
+                <div className="relative">
+                  <pre className="bg-safesphere-dark-card p-3 rounded-lg overflow-x-auto font-mono text-xs">
+{`Authorization: Bearer YOUR_API_TOKEN`}
                   </pre>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="examples" className="mt-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold mb-2">Code Examples</h2>
-                  <p className="text-safesphere-white-muted/60 text-sm">
-                    Sample code for integrating with the SafeSphere API
-                  </p>
+                  <button 
+                    onClick={() => handleCopyCode(`Authorization: Bearer YOUR_API_TOKEN`)}
+                    className="absolute top-2 right-2 p-1.5 rounded-md bg-safesphere-dark-hover/50 hover:bg-safesphere-dark-hover text-safesphere-white-muted/60 hover:text-safesphere-white button-hover"
+                  >
+                    <Copy size={14} />
+                  </button>
                 </div>
-                
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-md font-medium mb-2">JavaScript/TypeScript</h3>
-                    <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto text-sm">
-{`// Fetch user data
-const fetchUsers = async () => {
-  const response = await fetch('https://api.safesphere.example.com/v1/users', {
-    headers: {
-      'Authorization': 'Bearer YOUR_API_TOKEN',
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  const data = await response.json();
-  return data;
-};
-
-// Create a new user
-const createUser = async (userData) => {
-  const response = await fetch('https://api.safesphere.example.com/v1/users', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer YOUR_API_TOKEN',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(userData)
-  });
-  
-  const data = await response.json();
-  return data;
-};`}
-                    </pre>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-md font-medium mb-2">Python</h3>
-                    <pre className="bg-safesphere-dark-card/50 p-4 rounded-lg overflow-auto text-sm">
-{`import requests
-
-API_BASE = 'https://api.safesphere.example.com/v1'
-API_TOKEN = 'YOUR_API_TOKEN'
-
-def get_users():
-    headers = {
-        'Authorization': f'Bearer {API_TOKEN}',
-        'Content-Type': 'application/json'
-    }
-    response = requests.get(f'{API_BASE}/users', headers=headers)
-    return response.json()
-
-def create_user(user_data):
-    headers = {
-        'Authorization': f'Bearer {API_TOKEN}',
-        'Content-Type': 'application/json'
-    }
-    response = requests.post(
-        f'{API_BASE}/users', 
-        headers=headers, 
-        json=user_data
-    )
-    return response.json()`}
-                    </pre>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+              </div>
+            </div>
+          )}
         </div>
-      </AnimatedTransition>
+      </div>
     </div>
   );
 };
