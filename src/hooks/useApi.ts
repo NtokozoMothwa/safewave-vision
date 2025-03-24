@@ -1,205 +1,17 @@
-import { useState } from 'react';
-import { apiClient } from '@/services/api';
-import { ApiRequestOptions, ApiResponse, SystemHealthService } from '@/services/apiTypes';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
 
-interface ApiState {
-  loading: boolean;
-  error: string | null;
-}
+import { apiClient } from '@/services/api';
+import { ApiRequestOptions, ApiResponse } from '@/services/apiTypes';
+import { useAuth } from '@/context/AuthContext';
+import { makeAuthRequest, useApiState, useExportData } from './useApiUtils';
+import { useSystemHealth } from './useSystemHealth';
 
 /**
  * Hook for making API requests with authentication and additional integration features
  */
 export function useApi() {
   const { user } = useAuth();
-  const [state, setState] = useState<Record<string, ApiState>>({});
-  
-  /**
-   * Helper function to create a request key for tracking loading states
-   */
-  const createRequestKey = (endpoint: string, method: string) => {
-    return `${method}:${endpoint}`;
-  };
-  
-  /**
-   * Helper function to make authenticated API requests
-   */
-  const makeAuthRequest = async <T>(
-    endpoint: string,
-    method: string,
-    requestFn: (options?: ApiRequestOptions) => Promise<ApiResponse<T>>,
-    options?: Omit<ApiRequestOptions, 'token'>
-  ): Promise<ApiResponse<T>> => {
-    const requestKey = createRequestKey(endpoint, method);
-    
-    setState(prev => ({
-      ...prev,
-      [requestKey]: { loading: true, error: null }
-    }));
-    
-    try {
-      // Get token from localStorage, in a real app you'd use a proper auth token
-      // This is just simulating the token retrieval
-      const token = localStorage.getItem('safesphere_api_token') || 'demo_token';
-      
-      const response = await requestFn({
-        ...options,
-        token,
-      });
-      
-      if (!response.success && response.error) {
-        setState(prev => ({
-          ...prev,
-          [requestKey]: { loading: false, error: response.error.message }
-        }));
-        
-        if (options?.showErrors !== false) {
-          toast.error(response.error.message, {
-            description: `Error code: ${response.error.code}`,
-            duration: 5000,
-          });
-        }
-      } else {
-        setState(prev => ({
-          ...prev,
-          [requestKey]: { loading: false, error: null }
-        }));
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      
-      setState(prev => ({
-        ...prev,
-        [requestKey]: { loading: false, error: errorMessage }
-      }));
-      
-      if (options?.showErrors !== false) {
-        toast.error('API Request Failed', {
-          description: errorMessage,
-          duration: 5000,
-        });
-      }
-      
-      return {
-        success: false,
-        error: {
-          code: 'unknown_error',
-          message: errorMessage,
-        },
-        meta: {
-          timestamp: new Date().toISOString()
-        }
-      };
-    }
-  };
-  
-  /**
-   * Hook to fetch system health status with React Query
-   */
-  const useSystemHealth = (options?: Omit<ApiRequestOptions, 'token'>) => {
-    return useQuery({
-      queryKey: ['system', 'health'],
-      queryFn: async () => {
-        const response = await makeAuthRequest<SystemHealthService>(
-          '/system/health',
-          'GET',
-          opts => apiClient.system.getHealth(opts),
-          options
-        );
-        if (!response.success) {
-          throw new Error(response.error?.message || 'Failed to fetch system health');
-        }
-        return response.data;
-      }
-    });
-  };
-  
-  /**
-   * Helper to get loading state for a request
-   */
-  const getLoadingState = (endpoint: string, method: string) => {
-    const requestKey = createRequestKey(endpoint, method);
-    return state[requestKey]?.loading || false;
-  };
-  
-  /**
-   * Helper to get error for a request
-   */
-  const getError = (endpoint: string, method: string) => {
-    const requestKey = createRequestKey(endpoint, method);
-    return state[requestKey]?.error || null;
-  };
-  
-  /**
-   * Get loading state for any request
-   */
-  const isLoading = () => {
-    return Object.values(state).some(s => s.loading);
-  };
-  
-  /**
-   * Clear all errors
-   */
-  const clearErrors = () => {
-    setState(prev => {
-      const newState = { ...prev };
-      Object.keys(newState).forEach(key => {
-        newState[key] = { ...newState[key], error: null };
-      });
-      return newState;
-    });
-  };
-  
-  /**
-   * Export data in various formats
-   */
-  const exportData = async (
-    endpoint: string, 
-    format: 'json' | 'csv' | 'xml' = 'json',
-    fileName: string = 'safesphere_export',
-    options?: Omit<ApiRequestOptions, 'token'>
-  ) => {
-    const response = await makeAuthRequest(
-      endpoint, 
-      'GET',
-      (opts) => apiClient.apiRequest(endpoint, 'GET', { ...opts, format }),
-      options
-    );
-    
-    if (response.success && response.data) {
-      let dataStr: string;
-      let fileNameWithExt: string;
-      
-      if (format === 'json') {
-        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(response.data, null, 2));
-        fileNameWithExt = `${fileName}.json`;
-      } else if (format === 'csv') {
-        const csvData = typeof response.data === 'string' ? response.data : String(response.data);
-        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvData);
-        fileNameWithExt = `${fileName}.csv`;
-      } else {
-        const xmlData = typeof response.data === 'string' ? response.data : String(response.data);
-        dataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(xmlData);
-        fileNameWithExt = `${fileName}.xml`;
-      }
-      
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", fileNameWithExt);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-      
-      return true;
-    }
-    
-    return false;
-  };
+  const { getLoadingState, getError, isLoading, clearErrors, updateRequestState } = useApiState();
+  const { exportData } = useExportData();
   
   // Helper function to make an API request with the given options
   const apiRequest = <T>(
@@ -211,7 +23,8 @@ export function useApi() {
       endpoint,
       method,
       opts => apiClient.apiRequest<T>(endpoint, method, opts),
-      options
+      options,
+      updateRequestState
     );
   };
   
@@ -226,67 +39,67 @@ export function useApi() {
     api: {
       docs: {
         getApiDocs: (format: 'json' | 'yaml' | 'html' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/docs', 'GET', opts => apiClient.docs.getApiDocs(format, opts), options),
+          makeAuthRequest('/docs', 'GET', opts => apiClient.docs.getApiDocs(format, opts), options, updateRequestState),
         getOpenApiSpec: (options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/docs/openapi', 'GET', opts => apiClient.docs.getOpenApiSpec(opts), options),
+          makeAuthRequest('/docs/openapi', 'GET', opts => apiClient.docs.getOpenApiSpec(opts), options, updateRequestState),
       },
       users: {
         getAll: (options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/users', 'GET', opts => apiClient.users.getAll(opts), options),
+          makeAuthRequest('/users', 'GET', opts => apiClient.users.getAll(opts), options, updateRequestState),
         getById: (id: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/users/${id}`, 'GET', opts => apiClient.users.getById(id, opts), options),
+          makeAuthRequest(`/users/${id}`, 'GET', opts => apiClient.users.getById(id, opts), options, updateRequestState),
         create: (userData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/users', 'POST', opts => apiClient.users.create(userData, opts), options),
+          makeAuthRequest('/users', 'POST', opts => apiClient.users.create(userData, opts), options, updateRequestState),
         update: (id: string, userData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/users/${id}`, 'PUT', opts => apiClient.users.update(id, userData, opts), options),
+          makeAuthRequest(`/users/${id}`, 'PUT', opts => apiClient.users.update(id, userData, opts), options, updateRequestState),
         delete: (id: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/users/${id}`, 'DELETE', opts => apiClient.users.delete(id, opts), options),
+          makeAuthRequest(`/users/${id}`, 'DELETE', opts => apiClient.users.delete(id, opts), options, updateRequestState),
         bulkImport: (usersData: any[], options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/users/bulk', 'POST', opts => apiClient.users.bulkImport(usersData, opts), options),
+          makeAuthRequest('/users/bulk', 'POST', opts => apiClient.users.bulkImport(usersData, opts), options, updateRequestState),
         export: (format: 'json' | 'csv' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/users/export', 'GET', opts => apiClient.users.export(format, opts), options),
+          makeAuthRequest('/users/export', 'GET', opts => apiClient.users.export(format, opts), options, updateRequestState),
       },
       health: {
         getHistory: (userId: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/health/${userId}/history`, 'GET', opts => apiClient.health.getHistory(userId, opts), options),
+          makeAuthRequest(`/health/${userId}/history`, 'GET', opts => apiClient.health.getHistory(userId, opts), options, updateRequestState),
         getCurrentStatus: (userId: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/health/${userId}/status`, 'GET', opts => apiClient.health.getCurrentStatus(userId, opts), options),
+          makeAuthRequest(`/health/${userId}/status`, 'GET', opts => apiClient.health.getCurrentStatus(userId, opts), options, updateRequestState),
         logEvent: (userId: string, eventData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/health/${userId}/events`, 'POST', opts => apiClient.health.logEvent(userId, eventData, opts), options),
+          makeAuthRequest(`/health/${userId}/events`, 'POST', opts => apiClient.health.logEvent(userId, eventData, opts), options, updateRequestState),
         exportUserData: (userId: string, format: 'json' | 'csv' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/health/${userId}/export`, 'GET', opts => apiClient.health.exportUserData(userId, format, opts), options),
+          makeAuthRequest(`/health/${userId}/export`, 'GET', opts => apiClient.health.exportUserData(userId, format, opts), options, updateRequestState),
       },
       geofencing: {
         getZones: (options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/geofencing/zones', 'GET', opts => apiClient.geofencing.getZones(opts), options),
+          makeAuthRequest('/geofencing/zones', 'GET', opts => apiClient.geofencing.getZones(opts), options, updateRequestState),
         createZone: (zoneData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/geofencing/zones', 'POST', opts => apiClient.geofencing.createZone(zoneData, opts), options),
+          makeAuthRequest('/geofencing/zones', 'POST', opts => apiClient.geofencing.createZone(zoneData, opts), options, updateRequestState),
         updateZone: (id: string, zoneData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/geofencing/zones/${id}`, 'PUT', opts => apiClient.geofencing.updateZone(id, zoneData, opts), options),
+          makeAuthRequest(`/geofencing/zones/${id}`, 'PUT', opts => apiClient.geofencing.updateZone(id, zoneData, opts), options, updateRequestState),
         deleteZone: (id: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/geofencing/zones/${id}`, 'DELETE', opts => apiClient.geofencing.deleteZone(id, opts), options),
+          makeAuthRequest(`/geofencing/zones/${id}`, 'DELETE', opts => apiClient.geofencing.deleteZone(id, opts), options, updateRequestState),
         bulkImportZones: (zonesData: any[], options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/geofencing/zones/bulk', 'POST', opts => apiClient.geofencing.bulkImportZones(zonesData, opts), options),
+          makeAuthRequest('/geofencing/zones/bulk', 'POST', opts => apiClient.geofencing.bulkImportZones(zonesData, opts), options, updateRequestState),
         exportZones: (format: 'json' | 'csv' | 'kml' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/geofencing/zones/export', 'GET', opts => apiClient.geofencing.exportZones(format, opts), options),
+          makeAuthRequest('/geofencing/zones/export', 'GET', opts => apiClient.geofencing.exportZones(format, opts), options, updateRequestState),
       },
       system: {
         getHealth: (options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/system/health', 'GET', opts => apiClient.system.getHealth(opts), options),
+          makeAuthRequest('/system/health', 'GET', opts => apiClient.system.getHealth(opts), options, updateRequestState),
         getApiUsage: (period: 'day' | 'week' | 'month' = 'day', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/system/metrics/api', 'GET', opts => apiClient.system.getApiUsage(period, opts), options),
+          makeAuthRequest('/system/metrics/api', 'GET', opts => apiClient.system.getApiUsage(period, opts), options, updateRequestState),
         getLogs: (level: 'info' | 'warn' | 'error' | 'all' = 'all', options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/system/logs', 'GET', opts => apiClient.system.getLogs(level, opts), options),
+          makeAuthRequest('/system/logs', 'GET', opts => apiClient.system.getLogs(level, opts), options, updateRequestState),
       },
       integrations: {
         registerWebhook: (webhookData: any, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/integrations/webhooks', 'POST', opts => apiClient.integrations.registerWebhook(webhookData, opts), options),
+          makeAuthRequest('/integrations/webhooks', 'POST', opts => apiClient.integrations.registerWebhook(webhookData, opts), options, updateRequestState),
         testWebhook: (webhookId: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/integrations/webhooks/${webhookId}/test`, 'POST', opts => apiClient.integrations.testWebhook(webhookId, opts), options),
+          makeAuthRequest(`/integrations/webhooks/${webhookId}/test`, 'POST', opts => apiClient.integrations.testWebhook(webhookId, opts), options, updateRequestState),
         listWebhooks: (options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest('/integrations/webhooks', 'GET', opts => apiClient.integrations.listWebhooks(opts), options),
+          makeAuthRequest('/integrations/webhooks', 'GET', opts => apiClient.integrations.listWebhooks(opts), options, updateRequestState),
         deleteWebhook: (webhookId: string, options?: Omit<ApiRequestOptions, 'token'>) => 
-          makeAuthRequest(`/integrations/webhooks/${webhookId}`, 'DELETE', opts => apiClient.integrations.deleteWebhook(webhookId, opts), options),
+          makeAuthRequest(`/integrations/webhooks/${webhookId}`, 'DELETE', opts => apiClient.integrations.deleteWebhook(webhookId, opts), options, updateRequestState),
       },
     },
   };

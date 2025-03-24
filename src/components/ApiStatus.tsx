@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Check, X, Clock } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
+import { useSystemHealth } from '@/hooks/useSystemHealth';
 import AnimatedTransition from './AnimatedTransition';
 
 interface SystemHealthData {
@@ -17,31 +17,7 @@ interface SystemHealthData {
 }
 
 const ApiStatus = () => {
-  const { api, getLoadingState, getError } = useApi();
-  const [health, setHealth] = useState<SystemHealthData | null>(null);
-  
-  useEffect(() => {
-    const fetchSystemHealth = async () => {
-      try {
-        const response = await api.system.getHealth();
-        if (response.success && response.data) {
-          setHealth(response.data as SystemHealthData);
-        }
-      } catch (error) {
-        console.error("Error fetching system health:", error);
-      }
-    };
-    
-    fetchSystemHealth();
-    
-    // Set up polling interval
-    const interval = setInterval(fetchSystemHealth, 60000); // Check every minute
-    
-    return () => clearInterval(interval);
-  }, [api.system]);
-  
-  const isLoading = getLoadingState('/system/health', 'GET');
-  const error = getError('/system/health', 'GET');
+  const { data: health, isLoading, error } = useSystemHealth();
   
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -104,7 +80,7 @@ const ApiStatus = () => {
       
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-500 text-sm">
-          Error loading system status: {error}
+          Error loading system status: {error instanceof Error ? error.message : String(error)}
         </div>
       )}
       
