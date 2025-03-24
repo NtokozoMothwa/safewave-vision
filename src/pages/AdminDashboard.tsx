@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Layout } from '@/components/ui/layout';
 import { 
   Grid, Cpu, Database, Server, FileDown, Settings, Users, 
-  Bell, Shield, Activity, Clock, Globe, Download, Code
+  Bell, Shield, Activity, Globe, Download, Code, BarChart3
 } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import AdminUserDistribution from '@/components/admin/AdminUserDistribution';
 import AdminUserTable from '@/components/admin/AdminUserTable';
 import SystemStatusCard from '@/components/admin/SystemStatusCard';
 import ApiKeyManager from '@/components/admin/ApiKeyManager';
-import { useApi } from '@/hooks/useApi';
+import { useSystemHealth } from '@/hooks/useSystemHealth';
 
 // Mock data for API request monitoring
 const apiRequestData = [
@@ -98,11 +98,10 @@ const mockUsers = [
 ];
 
 const AdminDashboard: React.FC = () => {
-  const { api, loading } = useApi();
+  const { data: healthData } = useSystemHealth();
   const [exportFormat, setExportFormat] = useState<string>('json');
   
   const handleExportData = () => {
-    // In a real app, this would call the API to generate a report
     toast.success("Generating export. The file will download shortly.", {
       description: `Export format: ${exportFormat.toUpperCase()}`
     });
@@ -147,7 +146,7 @@ const AdminDashboard: React.FC = () => {
         <div className="px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold">Admin Control Panel</h1>
               <p className="text-safesphere-white-muted/60">
                 System monitoring and management
               </p>
@@ -155,7 +154,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex gap-2 mt-4 md:mt-0">
               <div className="flex items-center gap-2">
                 <Select defaultValue={exportFormat} onValueChange={setExportFormat}>
-                  <SelectTrigger className="w-[120px] bg-transparent text-safesphere-white border-white/10">
+                  <SelectTrigger className="w-[120px] bg-safesphere-dark-card text-safesphere-white border-white/10">
                     <SelectValue placeholder="Format" />
                   </SelectTrigger>
                   <SelectContent className="bg-safesphere-dark-card border-white/10">
@@ -164,7 +163,7 @@ const AdminDashboard: React.FC = () => {
                     <SelectItem value="text">Text</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="bg-transparent text-safesphere-white border-white/10" onClick={handleExportData}>
+                <Button variant="outline" className="bg-safesphere-dark-card text-safesphere-white border-white/10" onClick={handleExportData}>
                   <FileDown className="mr-1.5 h-4 w-4" />
                   Export Report
                 </Button>
@@ -316,7 +315,7 @@ const AdminDashboard: React.FC = () => {
                   value="24m"
                   change="+2.1%"
                   trend="up"
-                  icon={<Clock className="h-5 w-5 text-safesphere-purple" />}
+                  icon={<BarChart3 className="h-5 w-5 text-safesphere-purple" />}
                 />
               </div>
               
@@ -350,7 +349,7 @@ const AdminDashboard: React.FC = () => {
                   value="125ms"
                   change="-8.2%"
                   trend="down"
-                  icon={<Clock className="h-5 w-5 text-safesphere-success" />}
+                  icon={<Activity className="h-5 w-5 text-safesphere-success" />}
                 />
                 <AdminStatCard
                   title="Error Rate"
@@ -382,21 +381,21 @@ const AdminDashboard: React.FC = () => {
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
                       <Download className="h-5 w-5 mr-2 text-safesphere-info" />
-                      API Data Export
+                      API Documentation
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-safesphere-white-muted/60">
                       Download API documentation and data for integration
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                      <Button variant="outline" className="bg-safesphere-dark-card border-white/10 text-safesphere-white-muted/80">
                         <FileDown className="mr-2 h-4 w-4" /> API Documentation
                       </Button>
-                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                      <Button variant="outline" className="bg-safesphere-dark-card border-white/10 text-safesphere-white-muted/80">
                         <FileDown className="mr-2 h-4 w-4" /> Swagger Spec
                       </Button>
-                      <Button variant="outline" className="bg-transparent border-white/10 text-safesphere-white-muted/80">
+                      <Button variant="outline" className="bg-safesphere-dark-card border-white/10 text-safesphere-white-muted/80">
                         <FileDown className="mr-2 h-4 w-4" /> Postman Collection
                       </Button>
                     </div>
@@ -490,10 +489,10 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-medium">System Logs</h3>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="bg-transparent text-safesphere-white-muted/70 border-white/10">
+                      <Button variant="outline" size="sm" className="bg-safesphere-dark-card text-safesphere-white-muted/70 border-white/10">
                         Filter
                       </Button>
-                      <Button variant="outline" size="sm" className="bg-transparent text-safesphere-white-muted/70 border-white/10">
+                      <Button variant="outline" size="sm" className="bg-safesphere-dark-card text-safesphere-white-muted/70 border-white/10">
                         Export
                       </Button>
                     </div>
