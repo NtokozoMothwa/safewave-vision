@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -206,4 +205,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
     </div>
   );
-}
+};
+
+export default Layout;
