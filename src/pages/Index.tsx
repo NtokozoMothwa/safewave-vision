@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import Layout from '@/components/ui/layout';
+import { Layout } from '@/components/ui/layout';
 import Dashboard from '@/components/Dashboard';
 import { useAuth } from '@/context/AuthContext';
 import SmartWatchDownload from '@/components/SmartWatchDownload';
