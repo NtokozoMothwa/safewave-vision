@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { ArrowRight, BarChart3, Shield, Activity } from 'lucide-react';
+import { ArrowRight, BarChart3, Shield, Activity, LogIn } from 'lucide-react';
 import VitalsDisplay from '@/components/VitalsDisplay';
 
 const Index: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const isMobile = useIsMobile();
   
   return (
@@ -26,39 +26,108 @@ const Index: React.FC = () => {
                 Your personal safety assistant and health monitoring system
               </p>
             </div>
-            <Button asChild className="bg-safesphere-red hover:bg-safesphere-red-light">
-              <Link to="/dashboard">
-                Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <Button asChild className="bg-safesphere-red hover:bg-safesphere-red-light">
+                <Link to="/dashboard">
+                  Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            ) : (
+              <div className="flex gap-3">
+                <Button asChild variant="outline" className="border-white/10 hover:bg-safesphere-dark-hover">
+                  <Link to="/sign-up">Sign Up</Link>
+                </Button>
+                <Button asChild className="bg-safesphere-red hover:bg-safesphere-red-light">
+                  <Link to="/login">
+                    Sign In <LogIn className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </AnimatedTransition>
         
-        {/* Quick Status Overview */}
+        {/* Quick Status Overview - Only show if authenticated */}
+        {isAuthenticated && (
+          <Card className="bg-safesphere-dark-card border-white/10">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <Activity className="mr-2 h-5 w-5 text-safesphere-red" />
+                Quick Health Status
+              </CardTitle>
+              <CardDescription className="text-safesphere-white-muted/60">
+                Your current health metrics
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VitalsDisplay />
+              
+              <div className="mt-4 flex justify-end">
+                <Button asChild variant="outline" size="sm" className="border-white/10">
+                  <Link to="/health-history">
+                    View Complete History <BarChart3 className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Product Feature Highlights - Show for all users */}
         <Card className="bg-safesphere-dark-card border-white/10">
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
-              <Activity className="mr-2 h-5 w-5 text-safesphere-red" />
-              Quick Health Status
+              <Shield className="mr-2 h-5 w-5 text-safesphere-red" />
+              SafeSphere Features
             </CardTitle>
             <CardDescription className="text-safesphere-white-muted/60">
-              Your current health metrics
+              Discover what SafeSphere can do for you
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <VitalsDisplay />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-safesphere-dark-hover border border-white/10">
+                <div className="mb-2 h-8 w-8 rounded-lg bg-safesphere-red/20 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-safesphere-red" />
+                </div>
+                <h3 className="text-sm font-medium mb-1">Health Monitoring</h3>
+                <p className="text-xs text-safesphere-white-muted/70">
+                  Track vital signs and get real-time health insights
+                </p>
+              </div>
+              
+              <div className="p-4 rounded-lg bg-safesphere-dark-hover border border-white/10">
+                <div className="mb-2 h-8 w-8 rounded-lg bg-safesphere-red/20 flex items-center justify-center">
+                  <MapPin className="h-5 w-5 text-safesphere-red" />
+                </div>
+                <h3 className="text-sm font-medium mb-1">Location Tracking</h3>
+                <p className="text-xs text-safesphere-white-muted/70">
+                  Know where your loved ones are at all times
+                </p>
+              </div>
+              
+              <div className="p-4 rounded-lg bg-safesphere-dark-hover border border-white/10">
+                <div className="mb-2 h-8 w-8 rounded-lg bg-safesphere-red/20 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-safesphere-red" />
+                </div>
+                <h3 className="text-sm font-medium mb-1">Emergency Response</h3>
+                <p className="text-xs text-safesphere-white-muted/70">
+                  Quick access to emergency services when needed
+                </p>
+              </div>
+            </div>
             
-            <div className="mt-4 flex justify-end">
-              <Button asChild variant="outline" size="sm" className="border-white/10">
-                <Link to="/health-history">
-                  View Complete History <BarChart3 className="ml-2 h-4 w-4" />
+            <div className="mt-6 flex justify-center">
+              <Button asChild className="bg-safesphere-red hover:bg-safesphere-red-light">
+                <Link to="/models">
+                  Explore All Features <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
           </CardContent>
         </Card>
         
-        {/* SmartWatch Download */}
+        {/* SmartWatch Download - Show for all */}
         <SmartWatchDownload />
         
         {/* Figma Design System Integration */}
