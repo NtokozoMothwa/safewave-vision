@@ -4,6 +4,7 @@ import { ApiRequestOptions, ApiResponse } from '@/services/apiTypes';
 import { useAuth } from '@/context/AuthContext';
 import { makeAuthRequest, useApiState, useExportData } from './useApiUtils';
 import { useSystemHealth } from './useSystemHealth';
+import { useSmartWatch } from './useSmartWatch';
 
 /**
  * Hook for making API requests with authentication and additional integration features
@@ -12,6 +13,7 @@ export function useApi() {
   const { user } = useAuth();
   const { getLoadingState, getError, isLoading, clearErrors, updateRequestState } = useApiState();
   const { exportData } = useExportData();
+  const smartWatch = useSmartWatch();
   
   // Helper function to make an API request with the given options
   const apiRequest = <T>(
@@ -36,6 +38,7 @@ export function useApi() {
     exportData,
     apiRequest,
     useSystemHealth,
+    smartWatch,
     api: {
       docs: {
         getApiDocs: (format: 'json' | 'yaml' | 'html' = 'json', options?: Omit<ApiRequestOptions, 'token'>) => 

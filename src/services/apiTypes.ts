@@ -1,4 +1,6 @@
 
+import { SmartWatchApiService } from './smartwatchApi';
+
 export interface ApiError {
   code: string;
   message: string;
@@ -71,5 +73,6 @@ export interface ApiServices {
     listWebhooks: (options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
     deleteWebhook: (webhookId: string, options?: Omit<ApiRequestOptions, 'token'>) => Promise<ApiResponse>;
   };
+  smartwatch: SmartWatchApiService;
   apiRequest: <T = any>(endpoint: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH', options?: ApiRequestOptions) => Promise<ApiResponse<T>>;
 }

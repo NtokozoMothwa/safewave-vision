@@ -1,29 +1,42 @@
 
-import { useEffect } from 'react';
-import Header from '@/components/Header';
+import React, { useEffect, useState } from 'react';
+import Layout from '@/components/ui/layout';
 import Dashboard from '@/components/Dashboard';
-import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import SmartWatchDownload from '@/components/SmartWatchDownload';
 
-const Index = () => {
+const Index: React.FC = () => {
+  const { user } = useAuth();
+  const [showSmartWatchDownload, setShowSmartWatchDownload] = useState(false);
+  
   useEffect(() => {
-    // Show environment alert after a delay to avoid overwhelming the user on page load
-    const timer = setTimeout(() => {
-      toast("Environment Alert", {
-        description: "Air quality has decreased in your area.",
-        position: "top-right",
-      });
-    }, 5000); // Increased from 2000ms to 5000ms for better user experience
+    // Check if we should show the smartwatch component
+    const hasSeenSmartWatchPromo = localStorage.getItem('safesphere_seen_smartwatch_promo');
+    if (!hasSeenSmartWatchPromo) {
+      // Show after a small delay for better UX
+      const timer = setTimeout(() => {
+        setShowSmartWatchDownload(true);
+        localStorage.setItem('safesphere_seen_smartwatch_promo', 'true');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
     
-    return () => clearTimeout(timer);
+    // Still show sometimes for demo purposes
+    if (Math.random() > 0.5) {
+      setShowSmartWatchDownload(true);
+    }
   }, []);
   
   return (
-    <div className="min-h-screen bg-mesh-pattern">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-10">
+    <Layout>
+      <div className="space-y-6 p-6">
         <Dashboard />
+        
+        {showSmartWatchDownload && (
+          <SmartWatchDownload />
+        )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -1,5 +1,5 @@
-
 import { ApiRequestOptions, ApiResponse, ApiServices, SystemHealthService } from './apiTypes';
+import { SmartWatchApiService, smartwatchApi } from './smartwatchApi';
 
 class ApiClient {
   private baseUrl: string;
@@ -212,6 +212,11 @@ class ApiClient {
       deleteWebhook: (webhookId: string, options?: ApiRequestOptions) => 
         this.apiRequest(`/integrations/webhooks/${webhookId}`, 'DELETE', options),
     };
+  }
+  
+  // Add smartwatch API service
+  get smartwatch(): SmartWatchApiService {
+    return smartwatchApi;
   }
 }
 
