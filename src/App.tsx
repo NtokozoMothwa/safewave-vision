@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Models from "./pages/Models";
@@ -16,6 +17,14 @@ import Users from "./pages/Users";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
+import { lazy, Suspense } from "react";
+
+// Add sign-up page with lazy loading
+const SignUp = lazy(() => import("./pages/SignUp"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+
+// Clerk publishable key - in production would be in environment variables
+const PUBLISHABLE_KEY = "pk_test_Y29tcGxldGUtY2hpcG11bmstNzEuY2xlcmsuYWNjb3VudHMuZGV2JA"; 
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,69 +54,90 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-right" theme="dark" toastOptions={{
-            classNames: {
-              toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
-              title: "text-safesphere-white",
-              description: "text-safesphere-white-muted/70",
-              actionButton: "bg-safesphere-red text-white",
-              cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
-              closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
-            }
-          }} />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={
-                <RequireAuth>
-                  <Index />
-                </RequireAuth>
-              } />
-              <Route path="/models" element={
-                <RequireAuth>
-                  <Models />
-                </RequireAuth>
-              } />
-              <Route path="/settings" element={
-                <RequireAuth>
-                  <Settings />
-                </RequireAuth>
-              } />
-              <Route path="/health-history" element={
-                <RequireAuth>
-                  <HealthHistory />
-                </RequireAuth>
-              } />
-              <Route path="/geofencing" element={
-                <RequireAuth>
-                  <GeofencingSettings />
-                </RequireAuth>
-              } />
-              <Route path="/api-docs" element={
-                <RequireAuth>
-                  <ApiDocs />
-                </RequireAuth>
-              } />
-              <Route path="/admin" element={
-                <RequireAdmin>
-                  <AdminDashboard />
-                </RequireAdmin>
-              } />
-              <Route path="/users" element={
-                <RequireAdmin>
-                  <Users />
-                </RequireAdmin>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ClerkProvider 
+      publishableKey={PUBLISHABLE_KEY}
+      clerkJSVersion="5.56.0-snapshot.v20250312225817"
+      signInUrl="/login"
+      signUpUrl="/sign-up"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/"
+    >
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner position="top-right" theme="dark" toastOptions={{
+              classNames: {
+                toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
+                title: "text-safesphere-white",
+                description: "text-safesphere-white-muted/70",
+                actionButton: "bg-safesphere-red text-white",
+                cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
+                closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
+              }
+            }} />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/sign-up" element={
+                  <Suspense fallback={<div className="p-12 bg-safesphere-dark min-h-screen">Loading...</div>}>
+                    <SignUp />
+                  </Suspense>
+                } />
+                <Route path="/" element={
+                  <RequireAuth>
+                    <Index />
+                  </RequireAuth>
+                } />
+                <Route path="/dashboard" element={
+                  <RequireAuth>
+                    <Suspense fallback={<div className="p-12 bg-safesphere-dark min-h-screen">Loading...</div>}>
+                      <Dashboard />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/models" element={
+                  <RequireAuth>
+                    <Models />
+                  </RequireAuth>
+                } />
+                <Route path="/settings" element={
+                  <RequireAuth>
+                    <Settings />
+                  </RequireAuth>
+                } />
+                <Route path="/health-history" element={
+                  <RequireAuth>
+                    <HealthHistory />
+                  </RequireAuth>
+                } />
+                <Route path="/geofencing" element={
+                  <RequireAuth>
+                    <GeofencingSettings />
+                  </RequireAuth>
+                } />
+                <Route path="/api-docs" element={
+                  <RequireAuth>
+                    <ApiDocs />
+                  </RequireAuth>
+                } />
+                <Route path="/admin" element={
+                  <RequireAdmin>
+                    <AdminDashboard />
+                  </RequireAdmin>
+                } />
+                <Route path="/users" element={
+                  <RequireAdmin>
+                    <Users />
+                  </RequireAdmin>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 };
 

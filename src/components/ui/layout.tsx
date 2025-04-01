@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Settings, Users, Shield, ActivitySquare, Bell, Menu, X,
   Database, Server, BarChart3, FileText, LogOut
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, UserButton } from '@/context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user, isAdmin } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -30,7 +31,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-safesphere-red" />
-              <span className="font-bold text-lg">SafeSphere Admin</span>
+              <span className="font-bold text-lg">
+                SafeSphere {isAdmin ? 'Admin' : ''}
+              </span>
             </Link>
             
             <nav className="hidden md:flex items-center gap-4">
@@ -41,26 +44,42 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }`}
               >
                 <Home className="h-4 w-4" />
-                <span>Dashboard</span>
+                <span>Home</span>
               </Link>
+              
               <Link 
-                to="/admin" 
+                to="/dashboard" 
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
-                  isActive('/admin') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                  isActive('/dashboard') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
                 }`}
               >
                 <ActivitySquare className="h-4 w-4" />
-                <span>Analytics</span>
+                <span>Dashboard</span>
               </Link>
-              <Link 
-                to="/users" 
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
-                  isActive('/users') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
-                }`}
-              >
-                <Users className="h-4 w-4" />
-                <span>Users</span>
-              </Link>
+              
+              {isAdmin && (
+                <>
+                  <Link 
+                    to="/admin" 
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+                      isActive('/admin') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                    }`}
+                  >
+                    <Server className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                  <Link 
+                    to="/users" 
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+                      isActive('/users') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                    }`}
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Users</span>
+                  </Link>
+                </>
+              )}
+              
               <Link 
                 to="/settings" 
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
@@ -78,22 +97,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Bell className="h-5 w-5 text-safesphere-white-muted/70" />
               <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-safesphere-red"></span>
             </button>
-            <div className="hidden md:flex items-center gap-2 bg-safesphere-dark-hover px-3 py-1.5 rounded-md">
-              <div className="h-7 w-7 rounded-full bg-safesphere-red/20 flex items-center justify-center text-safesphere-red border border-safesphere-red/30">
-                A
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm">Admin</span>
-                <span className="text-xs text-safesphere-white-muted/60">System</span>
-              </div>
-            </div>
             
-            <button 
-              onClick={logout}
-              className="hidden md:flex items-center gap-1.5 p-1.5 rounded-md hover:bg-safesphere-dark-hover text-safesphere-white-muted/70 hover:text-safesphere-white"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
+            <div className="hidden md:block">
+              <UserButton />
+            </div>
             
             {/* Mobile menu button */}
             <button 
@@ -121,28 +128,46 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Home className="h-4 w-4" />
-              <span>Dashboard</span>
+              <span>Home</span>
             </Link>
+            
             <Link 
-              to="/admin" 
+              to="/dashboard" 
               className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
-                isActive('/admin') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                isActive('/dashboard') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
               <ActivitySquare className="h-4 w-4" />
-              <span>Analytics</span>
+              <span>Dashboard</span>
             </Link>
-            <Link 
-              to="/users" 
-              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
-                isActive('/users') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Users className="h-4 w-4" />
-              <span>Users</span>
-            </Link>
+            
+            {isAdmin && (
+              <>
+                <Link 
+                  to="/admin" 
+                  className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                    isActive('/admin') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Server className="h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+                
+                <Link 
+                  to="/users" 
+                  className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
+                    isActive('/users') ? 'bg-safesphere-dark-hover text-safesphere-white' : 'text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Users</span>
+                </Link>
+              </>
+            )}
+            
             <Link 
               to="/settings" 
               className={`flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 ${
@@ -153,15 +178,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Settings className="h-4 w-4" />
               <span>Settings</span>
             </Link>
-            <div 
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-md transition-colors my-1 text-safesphere-white-muted/70 hover:text-safesphere-white hover:bg-safesphere-dark-hover cursor-pointer"
-              onClick={() => {
-                logout();
-                setMobileMenuOpen(false);
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+            
+            <div className="flex justify-center my-3">
+              <UserButton />
             </div>
           </div>
         )}
@@ -181,19 +200,29 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className="text-xs mt-1">Home</span>
           </Link>
           <Link 
-            to="/users" 
-            className={`p-2 rounded-md flex flex-col items-center ${isActive('/users') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}
+            to="/dashboard" 
+            className={`p-2 rounded-md flex flex-col items-center ${isActive('/dashboard') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}
           >
-            <Users className="h-5 w-5" />
-            <span className="text-xs mt-1">Users</span>
+            <ActivitySquare className="h-5 w-5" />
+            <span className="text-xs mt-1">Dashboard</span>
           </Link>
-          <Link 
-            to="/admin" 
-            className={`p-2 rounded-md flex flex-col items-center ${isActive('/admin') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}
-          >
-            <Server className="h-5 w-5" />
-            <span className="text-xs mt-1">System</span>
-          </Link>
+          {isAdmin ? (
+            <Link 
+              to="/admin" 
+              className={`p-2 rounded-md flex flex-col items-center ${isActive('/admin') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}
+            >
+              <Server className="h-5 w-5" />
+              <span className="text-xs mt-1">Admin</span>
+            </Link>
+          ) : (
+            <Link 
+              to="/health-history" 
+              className={`p-2 rounded-md flex flex-col items-center ${isActive('/health-history') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}
+            >
+              <BarChart3 className="h-5 w-5" />
+              <span className="text-xs mt-1">Health</span>
+            </Link>
+          )}
           <Link 
             to="/settings" 
             className={`p-2 rounded-md flex flex-col items-center ${isActive('/settings') ? 'text-safesphere-red' : 'text-safesphere-white-muted/60'}`}

@@ -1,7 +1,16 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import React, { createContext, useContext } from 'react';
+import { 
+  useUser, 
+  useAuth as useClerkAuth, 
+  SignIn, 
+  SignUp,
+  UserButton,
+  SignedIn,
+  SignedOut 
+} from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Define user types and roles
 export type UserRole = 'user' | 'admin';
@@ -18,76 +27,47 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
-
-// Mock user data for demonstration
-const MOCK_USERS = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'user@example.com',
-    password: 'password123',
-    role: 'user' as UserRole,
-    avatarUrl: '/placeholder.svg'
-  },
-  {
-    id: '2',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    password: 'admin123',
-    role: 'admin' as UserRole,
-    avatarUrl: '/placeholder.svg'
-  }
-];
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const isAuthenticated = user !== null;
+  const { isLoaded, userId } = useClerkAuth();
+  const { user: clerkUser } = useUser();
+  
+  // Map Clerk user to our User interface
+  const user: User | null = clerkUser ? {
+    id: clerkUser.id,
+    name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'User',
+    email: clerkUser.emailAddresses[0]?.emailAddress || '',
+    // For demo, determine admin role based on email domain
+    role: clerkUser.emailAddresses.some(email => 
+      email.emailAddress?.includes('admin')) ? 'admin' : 'user',
+    avatarUrl: clerkUser.imageUrl || undefined
+  } : null;
+  
+  const isAuthenticated = !!userId;
   const isAdmin = user?.role === 'admin';
 
-  // Check for existing session on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem('safesphere_user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Failed to parse stored user data', error);
-        localStorage.removeItem('safesphere_user');
-      }
-    }
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, this would be an API call
-    const foundUser = MOCK_USERS.find(u => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      const { password, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('safesphere_user', JSON.stringify(userWithoutPassword));
-      toast.success(`Welcome back, ${foundUser.name}!`);
-      return true;
-    } else {
-      toast.error('Invalid email or password');
-      return false;
-    }
-  };
-
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('safesphere_user');
     toast.info('You have been logged out');
   };
 
+  // Return loading state if Clerk isn't loaded yet
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-safesphere-dark">
+        <div className="animate-pulse text-safesphere-red font-semibold">
+          Loading authentication...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -129,3 +109,6 @@ export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
   
   return <>{children}</>;
 };
+
+// Export Clerk components for use in the app
+export { SignIn, SignUp, UserButton, SignedIn, SignedOut };

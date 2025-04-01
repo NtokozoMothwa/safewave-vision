@@ -1,47 +1,72 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Layout } from '@/components/ui/layout';
-import Dashboard from '@/components/Dashboard';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import SmartWatchDownload from '@/components/SmartWatchDownload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import AnimatedTransition from '@/components/AnimatedTransition';
+import { ArrowRight, BarChart3, Shield, Activity } from 'lucide-react';
+import VitalsDisplay from '@/components/VitalsDisplay';
 
 const Index: React.FC = () => {
   const { user } = useAuth();
-  const [showSmartWatchDownload, setShowSmartWatchDownload] = useState(false);
   const isMobile = useIsMobile();
-  
-  useEffect(() => {
-    // Check if we should show the smartwatch component
-    const hasSeenSmartWatchPromo = localStorage.getItem('safesphere_seen_smartwatch_promo');
-    if (!hasSeenSmartWatchPromo) {
-      // Show after a small delay for better UX
-      const timer = setTimeout(() => {
-        setShowSmartWatchDownload(true);
-        localStorage.setItem('safesphere_seen_smartwatch_promo', 'true');
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-    
-    // Still show sometimes for demo purposes
-    if (Math.random() > 0.5) {
-      setShowSmartWatchDownload(true);
-    }
-  }, []);
   
   return (
     <Layout>
       <div className="space-y-6 p-6">
-        <Dashboard />
+        <AnimatedTransition direction="up" className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Welcome to SafeSphere</h1>
+              <p className="text-safesphere-white-muted/60 mt-2">
+                Your personal safety assistant and health monitoring system
+              </p>
+            </div>
+            <Button asChild className="bg-safesphere-red hover:bg-safesphere-red-light">
+              <Link to="/dashboard">
+                Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </AnimatedTransition>
         
-        {showSmartWatchDownload && (
-          <SmartWatchDownload />
-        )}
+        {/* Quick Status Overview */}
+        <Card className="bg-safesphere-dark-card border-white/10">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center">
+              <Activity className="mr-2 h-5 w-5 text-safesphere-red" />
+              Quick Health Status
+            </CardTitle>
+            <CardDescription className="text-safesphere-white-muted/60">
+              Your current health metrics
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <VitalsDisplay />
+            
+            <div className="mt-4 flex justify-end">
+              <Button asChild variant="outline" size="sm" className="border-white/10">
+                <Link to="/health-history">
+                  View Complete History <BarChart3 className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* SmartWatch Download */}
+        <SmartWatchDownload />
         
         {/* Figma Design System Integration */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">SafeSphere Design System</h2>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <Shield className="mr-2 h-5 w-5 text-safesphere-red" />
+            SafeSphere Design System
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="bg-safesphere-dark-card border-white/10">
               <CardHeader>

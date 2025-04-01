@@ -1,11 +1,11 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SignIn, useAuth } from '@/context/AuthContext';
+import { SignUp as ClerkSignUp, useAuth } from '@/context/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-const Login = () => {
+const SignUp = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -30,14 +30,14 @@ const Login = () => {
               </div>
             </div>
             <CardTitle className="text-2xl font-bold text-center text-safesphere-white">
-              Safe<span className="text-safesphere-red">Sphere</span> Login
+              Create Safe<span className="text-safesphere-red">Sphere</span> Account
             </CardTitle>
             <CardDescription className="text-center text-safesphere-white-muted/60">
-              Enter your credentials to access your account
+              Sign up to start monitoring your safety
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SignIn redirectUrl="/" routing="path" path="/login" />
+            <ClerkSignUp redirectUrl="/dashboard" routing="path" path="/sign-up" />
           </CardContent>
         </Card>
       </AnimatedTransition>
@@ -45,4 +45,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
