@@ -21,7 +21,7 @@ export function Loading({
     lg: "h-8 w-8"
   };
 
-  const component = (
+  return (
     <div className={cn(
       "flex flex-col items-center justify-center gap-2", 
       fullscreen && "fixed inset-0 bg-safesphere-dark/80 z-50",
@@ -31,6 +31,4 @@ export function Loading({
       {text && <p className="text-xs text-safesphere-white-muted/60">{text}</p>}
     </div>
   );
-
-  return component;
 }

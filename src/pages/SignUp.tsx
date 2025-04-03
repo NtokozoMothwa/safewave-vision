@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { SignUp as ClerkSignUp, useAuth } from '@/context/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loading } from '@/components/ui/loading';
 
 const SignUp = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -15,6 +16,10 @@ const SignUp = () => {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
+
+  if (isLoading) {
+    return <Loading size="md" text="Loading authentication..." fullscreen />;
+  }
 
   return (
     <div className="min-h-screen bg-mesh-pattern flex items-center justify-center p-4">

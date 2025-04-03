@@ -11,6 +11,7 @@ import {
 } from '@clerk/clerk-react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Loading } from '@/components/ui/loading';
 
 // Define user types and roles
 export type UserRole = 'user' | 'admin';
@@ -28,14 +29,15 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   logout: () => void;
+  isLoading: boolean;
 }
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded, userId } = useClerkAuth();
-  const { user: clerkUser } = useUser();
+  const { isLoaded, userId, signOut } = useClerkAuth();
+  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   
   // Map Clerk user to our User interface
   const user: User | null = clerkUser ? {
@@ -50,24 +52,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const isAuthenticated = !!userId;
   const isAdmin = user?.role === 'admin';
+  const isLoading = !isLoaded || !isUserLoaded;
 
   const logout = () => {
+    signOut && signOut();
     toast.info('You have been logged out');
   };
 
   // Return loading state if Clerk isn't loaded yet
-  if (!isLoaded) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-safesphere-dark">
-        <div className="animate-pulse text-safesphere-red font-semibold">
-          Loading authentication...
-        </div>
+        <Loading size="lg" text="Authenticating..." fullscreen />
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -83,7 +85,11 @@ export const useAuth = () => {
 
 // Protected route component for regular users
 export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <Loading size="md" text="Checking authentication..." fullscreen />;
+  }
   
   if (!isAuthenticated) {
     toast.error('You must be logged in to access this page');
@@ -95,7 +101,11 @@ export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
 
 // Protected route component for admins
 export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <Loading size="md" text="Checking authorization..." fullscreen />;
+  }
   
   if (!isAuthenticated) {
     toast.error('You must be logged in to access this page');

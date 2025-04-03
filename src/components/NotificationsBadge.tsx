@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 
 const NotificationsBadge: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const { data: notifications = [], isLoading: isNotificationsLoading } = useQuery({
     queryKey: ['notifications', 'unread'],
     queryFn: async () => {
       if (!isAuthenticated) return [];
@@ -31,13 +31,13 @@ const NotificationsBadge: React.FC = () => {
       );
       return response.data;
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !isLoading,
     refetchInterval: 60000, // Refresh every 60 seconds
   });
 
   const unreadCount = notifications?.length || 0;
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || isLoading) return null;
 
   return (
     <Button 

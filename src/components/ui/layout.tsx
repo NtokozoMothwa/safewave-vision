@@ -1,11 +1,11 @@
 
-import { ReactNode, useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { ReactNode } from "react";
 import Header from "@/components/Header";
 import { Sidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/AuthContext";
 import AnimatedTransition from "../AnimatedTransition";
 import NotificationsBadge from "../NotificationsBadge";
+import { Loading } from "./loading";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,7 +13,11 @@ interface LayoutProps {
 }
 
 export function Layout({ children, showSidebar = true }: LayoutProps) {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <Loading size="lg" text="Loading application..." fullscreen />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-safesphere-dark text-safesphere-white">
