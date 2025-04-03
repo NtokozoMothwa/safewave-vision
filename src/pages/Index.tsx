@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { ArrowRight, BarChart3, Shield, Activity, LogIn } from 'lucide-react';
+import { ArrowRight, BarChart3, Shield, Activity, LogIn, MapPin } from 'lucide-react';
 import VitalsDisplay from '@/components/VitalsDisplay';
 
 const Index: React.FC = () => {
