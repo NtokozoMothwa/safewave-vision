@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,26 +6,27 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
+import { Loading } from "@/components/ui/loading";
+import { Suspense, lazy, useEffect } from "react";
 import Index from "./pages/Index";
-import Models from "./pages/Models";
-import Settings from "./pages/Settings";
-import HealthHistory from "./pages/HealthHistory";
-import GeofencingSettings from "./pages/GeofencingSettings";
-import ApiDocs from "./pages/ApiDocs";
-import AdminDashboard from "./pages/AdminDashboard";
-import Users from "./pages/Users";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import { useEffect } from "react";
-import { lazy, Suspense } from "react";
 
-// Add sign-up page with lazy loading
-const SignUp = lazy(() => import("./pages/SignUp"));
+// Use lazy loading for routes that aren't needed on initial load
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Models = lazy(() => import("./pages/Models"));
+const Settings = lazy(() => import("./pages/Settings"));
+const HealthHistory = lazy(() => import("./pages/HealthHistory"));
+const GeofencingSettings = lazy(() => import("./pages/GeofencingSettings"));
+const ApiDocs = lazy(() => import("./pages/ApiDocs"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Users = lazy(() => import("./pages/Users"));
+const Login = lazy(() => import("./pages/Login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Notifications = lazy(() => import("./pages/Notifications"));
 
-// Updated Clerk publishable key - in production would be in environment variables
-// This is a valid demo key that will prevent the initialization error
-const PUBLISHABLE_KEY = "pk_test_ZnJlc2gtc2hyaW1wLTkzLmNsZXJrLmFjY291bnRzLmRldiQ"; 
+// Updated Clerk publishable key - for demo purposes only
+// In production, this should come from environment variables
+const PUBLISHABLE_KEY = "pk_test_ZG91Z2h0eS1nb2JibGVyLTI5LmNsZXJrLmFjY291bnRzLmRldiQ";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +37,13 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Custom loading component for suspense fallback
+const SuspenseFallback = () => (
+  <div className="p-12 bg-safesphere-dark min-h-screen flex items-center justify-center">
+    <Loading size="lg" text="Loading..." />
+  </div>
+);
 
 const App = () => {
   useEffect(() => {
@@ -56,7 +65,6 @@ const App = () => {
   return (
     <ClerkProvider 
       publishableKey={PUBLISHABLE_KEY}
-      clerkJSVersion="5.56.0-snapshot.v20250312225817"
       signInUrl="/login"
       signUpUrl="/sign-up"
       signInFallbackRedirectUrl="/dashboard"
@@ -78,56 +86,85 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Login />
+                  </Suspense>
+                } />
                 <Route path="/sign-up" element={
-                  <Suspense fallback={<div className="p-12 bg-safesphere-dark min-h-screen">Loading...</div>}>
+                  <Suspense fallback={<SuspenseFallback />}>
                     <SignUp />
                   </Suspense>
                 } />
                 <Route path="/" element={<Index />} />
                 <Route path="/dashboard" element={
                   <RequireAuth>
-                    <Suspense fallback={<div className="p-12 bg-safesphere-dark min-h-screen">Loading...</div>}>
+                    <Suspense fallback={<SuspenseFallback />}>
                       <Dashboard />
                     </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/models" element={
                   <RequireAuth>
-                    <Models />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Models />
+                    </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/settings" element={
                   <RequireAuth>
-                    <Settings />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Settings />
+                    </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/health-history" element={
                   <RequireAuth>
-                    <HealthHistory />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <HealthHistory />
+                    </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/geofencing" element={
                   <RequireAuth>
-                    <GeofencingSettings />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <GeofencingSettings />
+                    </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/api-docs" element={
                   <RequireAuth>
-                    <ApiDocs />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <ApiDocs />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/notifications" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Notifications />
+                    </Suspense>
                   </RequireAuth>
                 } />
                 <Route path="/admin" element={
                   <RequireAdmin>
-                    <AdminDashboard />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <AdminDashboard />
+                    </Suspense>
                   </RequireAdmin>
                 } />
                 <Route path="/users" element={
                   <RequireAdmin>
-                    <Users />
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Users />
+                    </Suspense>
                   </RequireAdmin>
                 } />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <NotFound />
+                  </Suspense>
+                } />
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
