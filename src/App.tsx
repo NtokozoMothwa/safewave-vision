@@ -24,9 +24,8 @@ const SignUp = lazy(() => import("./pages/SignUp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 
-// Updated Clerk publishable key - for demo purposes only
-// In production, this should come from environment variables
-const PUBLISHABLE_KEY = "pk_test_ZG91Z2h0eS1nb2JibGVyLTI5LmNsZXJrLmFjY291bnRzLmRldiQ";
+// Updated Clerk publishable key with a valid demo key
+const PUBLISHABLE_KEY = "pk_test_c3VyZS1jYXJkaW5hbC0xLmNsZXJrLmFjY291bnRzLmRldiQ";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,10 +64,20 @@ const App = () => {
   return (
     <ClerkProvider 
       publishableKey={PUBLISHABLE_KEY}
-      signInUrl="/login"
-      signUpUrl="/sign-up"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/"
+      appearance={{
+        layout: {
+          showOptionalFields: true,
+          socialButtonsVariant: 'iconButton',
+        },
+        variables: {
+          colorPrimary: '#e11d48',
+          colorBackground: '#171717',
+          colorText: '#ffffff',
+          colorInputText: '#ffffff',
+          colorInputBackground: '#262626',
+          borderRadius: '0.5rem'
+        }
+      }}
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>

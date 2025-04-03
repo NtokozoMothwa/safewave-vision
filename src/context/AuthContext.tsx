@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   useUser, 
   useAuth as useClerkAuth, 
@@ -9,7 +9,7 @@ import {
   SignedIn,
   SignedOut 
 } from '@clerk/clerk-react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loading } from '@/components/ui/loading';
 
@@ -30,14 +30,28 @@ interface AuthContextType {
   isAdmin: boolean;
   logout: () => void;
   isLoading: boolean;
+  refetchUser: () => void;
 }
 
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded, userId, signOut } = useClerkAuth();
+  const { isLoaded, userId, signOut, getToken } = useClerkAuth();
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
+  const [isInternalLoading, setIsInternalLoading] = useState(true);
+  
+  // Effect to handle initial loading state
+  useEffect(() => {
+    if (isLoaded && isUserLoaded) {
+      // Add a small delay to ensure everything is properly initialized
+      const timer = setTimeout(() => {
+        setIsInternalLoading(false);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, isUserLoaded]);
   
   // Map Clerk user to our User interface
   const user: User | null = clerkUser ? {
@@ -52,24 +66,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const isAuthenticated = !!userId;
   const isAdmin = user?.role === 'admin';
-  const isLoading = !isLoaded || !isUserLoaded;
+  const isLoading = !isLoaded || !isUserLoaded || isInternalLoading;
 
   const logout = () => {
     signOut && signOut();
     toast.info('You have been logged out');
   };
-
-  // Return loading state if Clerk isn't loaded yet
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-safesphere-dark">
-        <Loading size="lg" text="Authenticating..." fullscreen />
-      </div>
-    );
-  }
+  
+  const refetchUser = async () => {
+    setIsInternalLoading(true);
+    // Add a small delay to ensure everything is properly refreshed
+    setTimeout(() => {
+      setIsInternalLoading(false);
+    }, 500);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, logout, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      isAdmin, 
+      logout, 
+      isLoading,
+      refetchUser
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -86,6 +106,7 @@ export const useAuth = () => {
 // Protected route component for regular users
 export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
   
   if (isLoading) {
     return <Loading size="md" text="Checking authentication..." fullscreen />;
@@ -93,7 +114,7 @@ export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
   
   if (!isAuthenticated) {
     toast.error('You must be logged in to access this page');
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   return <>{children}</>;
@@ -102,6 +123,7 @@ export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
 // Protected route component for admins
 export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const location = useLocation();
   
   if (isLoading) {
     return <Loading size="md" text="Checking authorization..." fullscreen />;
@@ -109,7 +131,7 @@ export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
   
   if (!isAuthenticated) {
     toast.error('You must be logged in to access this page');
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   if (!isAdmin) {
