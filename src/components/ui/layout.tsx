@@ -20,30 +20,35 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isContentReady, setIsContentReady] = useState(false);
 
-  // Simulate loading progress
+  // Improved loading progress simulation
   useEffect(() => {
     if (isLoading) {
+      // Start at a higher value to give a perception of faster loading
+      setLoadingProgress(30);
+      
+      // Using a faster interval for quicker updates
       const interval = setInterval(() => {
         setLoadingProgress(prev => {
-          const next = prev + (100 - prev) * 0.1;
-          return Math.min(next, 95); // Cap at 95% until actually loaded
+          // Accelerate progress more quickly
+          const increment = (100 - prev) * 0.15;
+          return Math.min(prev + increment, 95);
         });
-      }, 200);
+      }, 100);
       
       return () => clearInterval(interval);
     } else {
       setLoadingProgress(100);
-      // Add a small delay to ensure smooth transition
+      // Reduced delay for faster transition
       const timer = setTimeout(() => {
         setIsContentReady(true);
-      }, 300);
+      }, 150);
       
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
 
   if (isLoading) {
-    return <Loading size="lg" text="Loading application..." fullscreen progress={loadingProgress} />;
+    return <Loading size="lg" text="Loading application..." fullscreen progress={loadingProgress} delayedAppearance={false} />;
   }
 
   return (
@@ -52,6 +57,7 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         className="min-h-screen flex flex-col bg-safesphere-dark text-safesphere-white"
       >
         <Header rightContent={isAuthenticated ? <NotificationsBadge /> : undefined} />
@@ -70,7 +76,7 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
                   className="bg-safesphere-red-dark py-2 px-4 text-center text-sm flex items-center justify-center gap-2"
                   initial={{ y: -40 }}
                   animate={{ y: 0 }}
-                  transition={{ delay: 0.2 }}
+                  transition={{ delay: 0.1 }}
                 >
                   <Shield size={16} />
                   <span>Admin Mode - You have elevated permissions</span>
@@ -80,7 +86,7 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+                transition={{ delay: 0.05 }}
               >
                 {children}
               </motion.div>

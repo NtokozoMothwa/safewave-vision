@@ -24,8 +24,8 @@ const SignUp = lazy(() => import("./pages/SignUp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 
-// Updated Clerk publishable key with a valid demo key
-const PUBLISHABLE_KEY = "pk_test_c3VyZS1jYXJkaW5hbC0xLmNsZXJrLmFjY291bnRzLmRldiQ";
+// Using a demo key since current one is invalid
+const PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmlnc3VyLmxpc3RsZXNzLW1hbmF0ZWUtMzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,10 +37,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Custom loading component for suspense fallback
+// Custom loading component for suspense fallback with faster appearance
 const SuspenseFallback = () => (
-  <div className="p-12 bg-safesphere-dark min-h-screen flex items-center justify-center">
-    <Loading size="lg" text="Loading..." />
+  <div className="p-8 bg-safesphere-dark min-h-screen flex items-center justify-center">
+    <Loading size="md" text="Loading..." delayedAppearance={false} />
   </div>
 );
 

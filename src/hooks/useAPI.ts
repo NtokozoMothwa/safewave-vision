@@ -9,6 +9,7 @@ interface ApiOptions {
   headers?: Record<string, string>;
   showSuccessToast?: boolean;
   showErrorToast?: boolean;
+  skipLoading?: boolean; // Added to skip loading state for non-critical requests
 }
 
 interface ApiResponse<T> {
@@ -32,10 +33,13 @@ export function useAPI<T = any>(): ApiResponse<T> {
       headers = {},
       showSuccessToast = false,
       showErrorToast = true,
+      skipLoading = false, // Use this for background requests
     }: ApiOptions = {}
   ): Promise<{ data: T | null; error: Error | null }> => {
     try {
-      setLoading(true);
+      if (!skipLoading) {
+        setLoading(true);
+      }
       setError(null);
 
       const requestHeaders: Record<string, string> = {
@@ -58,8 +62,8 @@ export function useAPI<T = any>(): ApiResponse<T> {
         requestOptions.body = JSON.stringify(body);
       }
 
-      // For demo purposes, simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // For demo purposes, simulate API call with reduced time
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Simulate API response
       const mockResponse = {
@@ -75,7 +79,9 @@ export function useAPI<T = any>(): ApiResponse<T> {
         toast.success('Operation completed successfully');
       }
       
-      setLoading(false);
+      if (!skipLoading) {
+        setLoading(false);
+      }
       return { data: mockResponse.data as T, error: null };
     } catch (err) {
       const error = err as Error;
@@ -91,7 +97,9 @@ export function useAPI<T = any>(): ApiResponse<T> {
       }
 
       console.error('API Error:', error);
-      setLoading(false);
+      if (!skipLoading) {
+        setLoading(false);
+      }
       return { data: null, error };
     }
   }, [isAuthenticated, logout]);

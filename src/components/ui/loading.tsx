@@ -10,6 +10,7 @@ export interface LoadingProps {
   text?: string;
   fullscreen?: boolean;
   progress?: number;
+  delayedAppearance?: boolean;
 }
 
 export function Loading({ 
@@ -17,7 +18,8 @@ export function Loading({
   className, 
   text,
   fullscreen = false,
-  progress
+  progress,
+  delayedAppearance = false
 }: LoadingProps) {
   const sizeClasses = {
     sm: "h-4 w-4",
@@ -35,7 +37,7 @@ export function Loading({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: delayedAppearance ? 0.3 : 0.1, delay: delayedAppearance ? 0.2 : 0 }}
     >
       <div className="relative">
         <motion.div 
@@ -68,7 +70,7 @@ export function Loading({
           className="text-xs text-safesphere-white-muted/80"
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
         >
           {text}
         </motion.p>

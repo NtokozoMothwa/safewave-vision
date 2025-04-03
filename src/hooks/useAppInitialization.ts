@@ -17,10 +17,10 @@ export const useAppInitialization = () => {
     // Only prefetch data if the user is authenticated
     if (!isAuthenticated || !user) return;
 
-    // Function to prefetch data for critical components
+    // Function to prefetch only the most critical data
     const prefetchCriticalData = async () => {
       try {
-        // Prefetch system health
+        // Prioritize system health first
         queryClient.prefetchQuery({
           queryKey: ['system', 'health'],
           queryFn: async () => {
@@ -34,6 +34,32 @@ export const useAppInitialization = () => {
           }
         });
         
+        // Prefetch user notifications in parallel
+        queryClient.prefetchQuery({
+          queryKey: ['notifications'],
+          queryFn: async () => {
+            const response = await makeAuthRequest<any>(
+              '/notifications',
+              'GET',
+              () => Promise.resolve({
+                success: true,
+                data: [],
+                meta: { timestamp: new Date().toISOString() }
+              }),
+              { showErrors: false }
+            );
+            return response.data;
+          }
+        });
+      } catch (error) {
+        // Silent fail for prefetching
+        console.error('Error prefetching critical data:', error);
+      }
+    };
+
+    // Less critical data prefetching with delay
+    const prefetchNonCriticalData = async () => {
+      try {
         // Prefetch user health status
         queryClient.prefetchQuery({
           queryKey: ['health', 'status', user.id],
@@ -61,35 +87,18 @@ export const useAppInitialization = () => {
             return response.data;
           }
         });
-        
-        // Prefetch notifications
-        queryClient.prefetchQuery({
-          queryKey: ['notifications'],
-          queryFn: async () => {
-            const response = await makeAuthRequest<any>(
-              '/notifications',
-              'GET',
-              () => Promise.resolve({
-                success: true,
-                data: [
-                  // Mock notifications data
-                ],
-                meta: { timestamp: new Date().toISOString() }
-              }),
-              { showErrors: false }
-            );
-            return response.data;
-          }
-        });
       } catch (error) {
-        console.error('Error prefetching data:', error);
+        // Silent fail for prefetching
       }
     };
 
-    // Run prefetching in the background
+    // Run critical data prefetching immediately
     prefetchCriticalData();
-
-    // Check for system updates
+    
+    // Run non-critical prefetching after a delay
+    const nonCriticalTimer = setTimeout(prefetchNonCriticalData, 2000);
+    
+    // Check for system updates with a longer delay
     const checkForUpdates = async () => {
       try {
         const response = await makeAuthRequest(
@@ -122,10 +131,11 @@ export const useAppInitialization = () => {
       }
     };
     
-    // Check for updates after a delay
-    const updateTimer = setTimeout(checkForUpdates, 3000);
+    // Check for updates after a longer delay
+    const updateTimer = setTimeout(checkForUpdates, 5000);
     
     return () => {
+      clearTimeout(nonCriticalTimer);
       clearTimeout(updateTimer);
     };
   }, [isAuthenticated, user, queryClient]);
