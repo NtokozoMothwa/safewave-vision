@@ -13,11 +13,10 @@ interface LayoutProps {
 }
 
 export function Layout({ children, showSidebar = true }: LayoutProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col bg-safesphere-dark text-safesphere-white">
-      {/* Add NotificationsBadge to the Header */}
       <Header rightContent={isAuthenticated ? <NotificationsBadge /> : undefined} />
       
       <div className="flex flex-1">
@@ -25,6 +24,11 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
         
         <main className={`flex-1 ${showSidebar && isAuthenticated ? "lg:ml-[280px]" : ""}`}>
           <AnimatedTransition>
+            {isAdmin && (
+              <div className="bg-safesphere-red-dark py-1 px-4 text-center text-xs">
+                Admin Mode - You have elevated permissions
+              </div>
+            )}
             {children}
           </AnimatedTransition>
         </main>

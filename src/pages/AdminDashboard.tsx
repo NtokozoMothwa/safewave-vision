@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Layout } from '@/components/ui/layout';
 import { 
   Grid, Cpu, Database, Server, FileDown, Settings, Users, 
-  Bell, Activity, BarChart3, Shield, Terminal, GitBranch
+  Shield, Terminal, GitBranch
 } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -156,7 +156,7 @@ const AdminDashboard: React.FC = () => {
               <TabsTrigger value="logs" className="data-[state=active]:bg-safesphere-dark-hover">Logs</TabsTrigger>
             </TabsList>
             
-            {/* Overview Tab */}
+            {/* Overview Tab - Removed duplicated health metrics */}
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <AdminStatCard
@@ -172,7 +172,7 @@ const AdminDashboard: React.FC = () => {
                   value="2.8M"
                   change="+7.2%"
                   trend="up"
-                  icon={<Activity className="h-5 w-5 text-safesphere-success" />}
+                  icon={<Grid className="h-5 w-5 text-safesphere-success" />}
                   subtitle="Daily average"
                 />
                 <AdminStatCard
@@ -203,7 +203,7 @@ const AdminDashboard: React.FC = () => {
                 <Card className="bg-safesphere-dark-card border-white/10">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
-                      <Bell className="h-5 w-5 mr-2 text-safesphere-warning" />
+                      <Terminal className="h-5 w-5 mr-2 text-safesphere-warning" />
                       System Alerts
                     </CardTitle>
                     <CardDescription className="text-safesphere-white-muted/60">
@@ -224,7 +224,7 @@ const AdminDashboard: React.FC = () => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <Bell className={`h-4 w-4 mr-2 ${
+                            <Shield className={`h-4 w-4 mr-2 ${
                               alert.severity === 'high' 
                                 ? 'text-safesphere-red' 
                                 : alert.severity === 'medium'
@@ -245,7 +245,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </TabsContent>
             
-            {/* System Tab */}
+            {/* System Tab - Server-focused without user-accessible content */}
             <TabsContent value="system" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <AdminStatCard
@@ -318,7 +318,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </TabsContent>
             
-            {/* Users Tab */}
+            {/* Users Tab - Admin-specific user management */}
             <TabsContent value="users" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <AdminStatCard
@@ -340,14 +340,14 @@ const AdminDashboard: React.FC = () => {
                   value="24"
                   change="+5"
                   trend="up"
-                  icon={<Bell className="h-5 w-5 text-safesphere-warning" />}
+                  icon={<Terminal className="h-5 w-5 text-safesphere-warning" />}
                 />
               </div>
               
               <AdminUserTable users={mockUsers} />
             </TabsContent>
             
-            {/* Security Tab */}
+            {/* Security Tab - Admin-only security features */}
             <TabsContent value="security" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <AdminStatCard
@@ -362,7 +362,7 @@ const AdminDashboard: React.FC = () => {
                   value="28"
                   change="-12%"
                   trend="down"
-                  icon={<Activity className="h-5 w-5 text-safesphere-warning" />}
+                  icon={<Grid className="h-5 w-5 text-safesphere-warning" />}
                 />
                 <AdminStatCard
                   title="API Keys"
@@ -424,7 +424,7 @@ const AdminDashboard: React.FC = () => {
               </Card>
             </TabsContent>
             
-            {/* Logs Tab */}
+            {/* Logs Tab - Admin-only system logs */}
             <TabsContent value="logs" className="space-y-6">
               <Card className="bg-safesphere-dark-card border-white/10">
                 <CardHeader className="pb-2">
@@ -464,24 +464,7 @@ const AdminDashboard: React.FC = () => {
             </TabsContent>
           </Tabs>
           
-          {/* Figma Design Preview */}
-          <Card className="bg-safesphere-dark-card border-white/10 mt-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Figma Design Integration</CardTitle>
-              <CardDescription className="text-safesphere-white-muted/60">
-                View and interact with the latest design system
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md overflow-hidden border border-white/10">
-                <iframe
-                  className="w-full h-[600px]"
-                  src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FJjikqWmbMOijJzNeC3tvoJ%2FSafeSphere-Admin-Design-System%3Ftype%3Ddesign%26node-id%3D0%253A1%26t%3DwYbzLpfAlpVaQ6KI-1"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Removed Figma Design Preview section as it's not admin-specific functionality */}
         </div>
       </AnimatedTransition>
     </Layout>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Users, MoreHorizontal, UserPlus, UserX, Shield, Edit } from 'lucide-react';
+import { Users, MoreHorizontal, Shield, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
@@ -51,7 +51,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({ users }) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg text-safesphere-white flex items-center gap-2">
           <Users size={18} className="text-safesphere-info" />
-          Recent User Activity
+          User Management
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -82,18 +82,15 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({ users }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-safesphere-dark-card border-white/10">
-                      <DropdownMenuItem className="text-safesphere-white cursor-pointer flex items-center">
-                        <Edit className="h-4 w-4 mr-2" /> Edit User
-                      </DropdownMenuItem>
                       <DropdownMenuItem className="text-safesphere-warning cursor-pointer flex items-center">
                         <Shield className="h-4 w-4 mr-2" /> Change Role
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-white/10" />
                       <DropdownMenuItem className="text-safesphere-red cursor-pointer flex items-center">
-                        <UserX className="h-4 w-4 mr-2" /> Suspend User
+                        <Terminal className="h-4 w-4 mr-2" /> Reset 2FA
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-safesphere-white-muted/70 cursor-pointer flex items-center">
-                        <Users className="h-4 w-4 mr-2" /> View Activity Log
+                        <Shield className="h-4 w-4 mr-2" /> View Permissions
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -102,11 +99,6 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({ users }) => {
             ))}
           </TableBody>
         </Table>
-        <div className="flex items-center justify-end mt-4">
-          <Button size="sm" className="bg-safesphere-dark-hover text-safesphere-white-muted/70 hover:text-safesphere-white">
-            <UserPlus className="h-4 w-4 mr-2" /> Add New User
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
