@@ -6,10 +6,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
 import { Loading } from "@/components/ui/loading";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import { useAppInitialization } from "./hooks/useAppInitialization";
 
 // Use lazy loading for routes that aren't needed on initial load
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -45,12 +44,6 @@ const SuspenseFallback = () => (
   </div>
 );
 
-// Component to handle initialization
-const AppInitialization = ({ children }: { children: React.ReactNode }) => {
-  useAppInitialization();
-  return <>{children}</>;
-};
-
 const App = () => {
   return (
     <ClerkProvider 
@@ -72,106 +65,104 @@ const App = () => {
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <AppInitialization>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner position="top-right" theme="dark" toastOptions={{
-                classNames: {
-                  toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
-                  title: "text-safesphere-white",
-                  description: "text-safesphere-white-muted/70",
-                  actionButton: "bg-safesphere-red text-white",
-                  cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
-                  closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
-                }
-              }} />
-              <BrowserRouter>
-                <Routes>
-                  {/* Default route redirects to login */}
-                  <Route path="/" element={<Navigate to="/login" replace />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/sign-up" element={<SignUp />} />
-                  
-                  {/* Home route separate from root route */}
-                  <Route path="/home" element={
+          <TooltipProvider>
+            <Toaster />
+            <Sonner position="top-right" theme="dark" toastOptions={{
+              classNames: {
+                toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
+                title: "text-safesphere-white",
+                description: "text-safesphere-white-muted/70",
+                actionButton: "bg-safesphere-red text-white",
+                cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
+                closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
+              }
+            }} />
+            <BrowserRouter>
+              <Routes>
+                {/* Default route redirects to login */}
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                
+                {/* Home route separate from root route */}
+                <Route path="/home" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Index />
+                  </Suspense>
+                } />
+                
+                {/* Other routes use suspense for lazy loading */}
+                <Route path="/dashboard" element={
+                  <RequireAuth>
                     <Suspense fallback={<SuspenseFallback />}>
-                      <Index />
+                      <Dashboard />
                     </Suspense>
-                  } />
-                  
-                  {/* Other routes use suspense for lazy loading */}
-                  <Route path="/dashboard" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Dashboard />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/models" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Models />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/settings" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Settings />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/health-history" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <HealthHistory />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/geofencing" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <GeofencingSettings />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/api-docs" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <ApiDocs />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/notifications" element={
-                    <RequireAuth>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Notifications />
-                      </Suspense>
-                    </RequireAuth>
-                  } />
-                  <Route path="/admin" element={
-                    <RequireAdmin>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <AdminDashboard />
-                      </Suspense>
-                    </RequireAdmin>
-                  } />
-                  <Route path="/users" element={
-                    <RequireAdmin>
-                      <Suspense fallback={<SuspenseFallback />}>
-                        <Users />
-                      </Suspense>
-                    </RequireAdmin>
-                  } />
-                  <Route path="*" element={
+                  </RequireAuth>
+                } />
+                <Route path="/models" element={
+                  <RequireAuth>
                     <Suspense fallback={<SuspenseFallback />}>
-                      <NotFound />
+                      <Models />
                     </Suspense>
-                  } />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </AppInitialization>
+                  </RequireAuth>
+                } />
+                <Route path="/settings" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Settings />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/health-history" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <HealthHistory />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/geofencing" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <GeofencingSettings />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/api-docs" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <ApiDocs />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/notifications" element={
+                  <RequireAuth>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Notifications />
+                    </Suspense>
+                  </RequireAuth>
+                } />
+                <Route path="/admin" element={
+                  <RequireAdmin>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </RequireAdmin>
+                } />
+                <Route path="/users" element={
+                  <RequireAdmin>
+                    <Suspense fallback={<SuspenseFallback />}>
+                      <Users />
+                    </Suspense>
+                  </RequireAdmin>
+                } />
+                <Route path="*" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <NotFound />
+                  </Suspense>
+                } />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ClerkProvider>

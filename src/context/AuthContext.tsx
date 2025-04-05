@@ -37,17 +37,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded, userId, signOut, getToken } = useClerkAuth();
+  const { isLoaded, userId, signOut } = useClerkAuth();
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
-  const [isInternalLoading, setIsInternalLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Effect to handle initial loading state - optimized for faster load
+  // Effect to handle initial loading state
   useEffect(() => {
-    if (!isLoaded || !isUserLoaded) {
-      setIsInternalLoading(true);
-    } else {
-      // Remove timeout completely
-      setIsInternalLoading(false);
+    if (isLoaded && isUserLoaded) {
+      setIsLoading(false);
     }
   }, [isLoaded, isUserLoaded]);
   
@@ -64,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const isAuthenticated = !!userId;
   const isAdmin = user?.role === 'admin';
-  const isLoading = !isLoaded || !isUserLoaded || isInternalLoading;
 
   const logout = () => {
     if (signOut) {
@@ -73,12 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
-  const refetchUser = async () => {
-    setIsInternalLoading(true);
-    // Reduce timeout for faster refresh
+  const refetchUser = () => {
+    setIsLoading(true);
     setTimeout(() => {
-      setIsInternalLoading(false);
-    }, 50); // Reduced even further
+      setIsLoading(false);
+    }, 100);
   };
 
   return (

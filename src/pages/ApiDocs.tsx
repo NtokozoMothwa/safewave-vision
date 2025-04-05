@@ -57,7 +57,6 @@ const ApiDocs: React.FC = () => {
               <TabsContent value="json">
                 <pre className="bg-gray-100 rounded-md p-4 overflow-x-auto">
                   <code>
-                    {/* JSON Content Here */}
                     {JSON.stringify(api, null, 2)}
                   </code>
                 </pre>
@@ -65,14 +64,12 @@ const ApiDocs: React.FC = () => {
               <TabsContent value="yaml">
                 <pre className="bg-gray-100 rounded-md p-4 overflow-x-auto">
                   <code>
-                    {/* YAML Content Here */}
                     YAML Documentation Coming Soon
                   </code>
                 </pre>
               </TabsContent>
               <TabsContent value="html">
                 <div className="space-y-4">
-                  {/* HTML Content Here */}
                   <p>HTML Documentation Coming Soon</p>
                 </div>
               </TabsContent>
