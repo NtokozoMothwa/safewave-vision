@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoaded, userId, signOut, getToken } = useClerkAuth();
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
-  const [isInternalLoading, setIsInternalLoading] = useState(false); // Start with false to prevent double loading
+  const [isInternalLoading, setIsInternalLoading] = useState(false);
   
   // Effect to handle initial loading state - optimized for faster load
   useEffect(() => {
@@ -67,8 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isLoading = !isLoaded || !isUserLoaded || isInternalLoading;
 
   const logout = () => {
-    signOut && signOut();
-    toast.info('You have been logged out');
+    if (signOut) {
+      signOut();
+      toast.info('You have been logged out');
+    }
   };
   
   const refetchUser = async () => {
