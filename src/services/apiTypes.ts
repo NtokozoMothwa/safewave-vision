@@ -20,6 +20,7 @@ export interface ApiRequestOptions {
   headers?: Record<string, string>;
   format?: 'json' | 'csv' | 'xml' | 'yaml' | 'kml' | 'html';
   showErrors?: boolean;
+  skipLoading?: boolean; // Added this property to fix type errors
 }
 
 export interface SystemHealthService {

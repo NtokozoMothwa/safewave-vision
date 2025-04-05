@@ -15,7 +15,7 @@ const MOCK_USERS = [
     name: 'Jane Cooper',
     email: 'jane.cooper@example.com',
     role: 'Admin',
-    status: 'Active',
+    status: 'active' as const,
     lastActive: '2 minutes ago'
   },
   {
@@ -23,7 +23,7 @@ const MOCK_USERS = [
     name: 'Robert Fox',
     email: 'robert.fox@example.com',
     role: 'User',
-    status: 'Active',
+    status: 'active' as const,
     lastActive: '3 hours ago'
   },
   {
@@ -31,7 +31,7 @@ const MOCK_USERS = [
     name: 'Esther Howard',
     email: 'esther.howard@example.com',
     role: 'Manager',
-    status: 'Active',
+    status: 'active' as const,
     lastActive: 'Today, 9:43 AM'
   },
   {
@@ -39,7 +39,7 @@ const MOCK_USERS = [
     name: 'Cameron Williamson',
     email: 'cameron.williamson@example.com',
     role: 'User',
-    status: 'Inactive',
+    status: 'inactive' as const,
     lastActive: '5 days ago'
   },
   {
@@ -47,7 +47,7 @@ const MOCK_USERS = [
     name: 'Brooklyn Simmons',
     email: 'brooklyn.simmons@example.com',
     role: 'User',
-    status: 'Pending',
+    status: 'pending' as const,
     lastActive: 'Never'
   },
   {
@@ -55,7 +55,7 @@ const MOCK_USERS = [
     name: 'Leslie Alexander',
     email: 'leslie.alexander@example.com',
     role: 'Support',
-    status: 'Active',
+    status: 'active' as const,
     lastActive: 'Yesterday, 2:12 PM'
   }
 ];
