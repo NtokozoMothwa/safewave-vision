@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 /**
- * Hook to handle app initialization and prefetching data
+ * Hook to handle app initialization and prefetching data with improved performance
  */
 export const useAppInitialization = () => {
   const queryClient = useQueryClient();
@@ -35,7 +35,9 @@ export const useAppInitialization = () => {
               { showErrors: false, skipLoading: true }
             );
             return response.data;
-          }
+          },
+          // Don't refetch to reduce unnecessary network requests
+          staleTime: 5 * 60 * 1000,
         });
       } catch (error) {
         // Silent fail for prefetching
@@ -43,10 +45,13 @@ export const useAppInitialization = () => {
       }
     };
 
-    // Less critical data prefetching with delay
+    // Use a shorter timeout for critical prefetch to get app interactive faster
+    const criticalTimer = setTimeout(prefetchCriticalData, 100);
+    
+    // Less critical data prefetching with longer delay
     const prefetchNonCriticalData = async () => {
       try {
-        // Prefetch system health
+        // Prefetch system health with lower priority
         queryClient.prefetchQuery({
           queryKey: ['system', 'health'],
           queryFn: async () => {
@@ -57,34 +62,19 @@ export const useAppInitialization = () => {
               { showErrors: false, skipLoading: true }
             );
             return response.data;
-          }
-        });
-        
-        // Prefetch user health status
-        queryClient.prefetchQuery({
-          queryKey: ['health', 'status', user.id],
-          queryFn: async () => {
-            const response = await makeAuthRequest(
-              `/health/${user.id}/status`,
-              'GET',
-              opts => apiClient.health.getCurrentStatus(user.id, opts),
-              { showErrors: false, skipLoading: true }
-            );
-            return response.data;
-          }
+          },
+          // Use longer stale time for non-critical data
+          staleTime: 15 * 60 * 1000,
         });
       } catch (error) {
         // Silent fail for prefetching
       }
     };
 
-    // Run critical data prefetching immediately but don't block UI
-    setTimeout(prefetchCriticalData, 50);
+    // Run non-critical prefetching after a longer delay
+    const nonCriticalTimer = setTimeout(prefetchNonCriticalData, 5000);
     
-    // Run non-critical prefetching after a delay
-    const nonCriticalTimer = setTimeout(prefetchNonCriticalData, 2000);
-    
-    // Check for system updates with a longer delay
+    // Check for updates with the lowest priority
     const checkForUpdates = async () => {
       try {
         const response = await makeAuthRequest(
@@ -118,9 +108,10 @@ export const useAppInitialization = () => {
     };
     
     // Check for updates after a longer delay
-    const updateTimer = setTimeout(checkForUpdates, 5000);
+    const updateTimer = setTimeout(checkForUpdates, 10000);
     
     return () => {
+      clearTimeout(criticalTimer);
       clearTimeout(nonCriticalTimer);
       clearTimeout(updateTimer);
     };

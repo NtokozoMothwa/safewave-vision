@@ -26,12 +26,13 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 // Using a demo key since current one is invalid
 const PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmlnc3VyLmxpc3RsZXNzLW1hbmF0ZWUtMzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
+// Configure query client with lower stale time to improve initial load performance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 60 * 1000, // Reduced to 1 minute
     },
   },
 });
@@ -94,15 +95,15 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                {/* Make login and signup routes load immediately without suspense */}
+                {/* Make login the default route */}
+                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 
-                {/* Redirect root to login page */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
+                {/* Move index to /home */}
+                <Route path="/home" element={<Index />} />
                 
                 {/* Other routes use suspense for lazy loading */}
-                <Route path="/home" element={<Index />} />
                 <Route path="/dashboard" element={
                   <RequireAuth>
                     <Suspense fallback={<SuspenseFallback />}>
