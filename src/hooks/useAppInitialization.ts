@@ -20,21 +20,7 @@ export const useAppInitialization = () => {
     // Function to prefetch only the most critical data
     const prefetchCriticalData = async () => {
       try {
-        // Prioritize system health first
-        queryClient.prefetchQuery({
-          queryKey: ['system', 'health'],
-          queryFn: async () => {
-            const response = await makeAuthRequest(
-              '/system/health',
-              'GET',
-              opts => apiClient.system.getHealth(opts),
-              { showErrors: false }
-            );
-            return response.data;
-          }
-        });
-        
-        // Prefetch user notifications in parallel
+        // Only load absolute essentials immediately
         queryClient.prefetchQuery({
           queryKey: ['notifications'],
           queryFn: async () => {
@@ -46,7 +32,7 @@ export const useAppInitialization = () => {
                 data: [],
                 meta: { timestamp: new Date().toISOString() }
               }),
-              { showErrors: false }
+              { showErrors: false, skipLoading: true }
             );
             return response.data;
           }
@@ -60,6 +46,20 @@ export const useAppInitialization = () => {
     // Less critical data prefetching with delay
     const prefetchNonCriticalData = async () => {
       try {
+        // Prefetch system health
+        queryClient.prefetchQuery({
+          queryKey: ['system', 'health'],
+          queryFn: async () => {
+            const response = await makeAuthRequest(
+              '/system/health',
+              'GET',
+              opts => apiClient.system.getHealth(opts),
+              { showErrors: false, skipLoading: true }
+            );
+            return response.data;
+          }
+        });
+        
         // Prefetch user health status
         queryClient.prefetchQuery({
           queryKey: ['health', 'status', user.id],
@@ -68,21 +68,7 @@ export const useAppInitialization = () => {
               `/health/${user.id}/status`,
               'GET',
               opts => apiClient.health.getCurrentStatus(user.id, opts),
-              { showErrors: false }
-            );
-            return response.data;
-          }
-        });
-        
-        // Prefetch geofencing zones
-        queryClient.prefetchQuery({
-          queryKey: ['geofencing', 'zones'],
-          queryFn: async () => {
-            const response = await makeAuthRequest(
-              '/geofencing/zones',
-              'GET',
-              opts => apiClient.geofencing.getZones(opts),
-              { showErrors: false }
+              { showErrors: false, skipLoading: true }
             );
             return response.data;
           }
@@ -92,8 +78,8 @@ export const useAppInitialization = () => {
       }
     };
 
-    // Run critical data prefetching immediately
-    prefetchCriticalData();
+    // Run critical data prefetching immediately but don't block UI
+    setTimeout(prefetchCriticalData, 50);
     
     // Run non-critical prefetching after a delay
     const nonCriticalTimer = setTimeout(prefetchNonCriticalData, 2000);
@@ -113,7 +99,7 @@ export const useAppInitialization = () => {
             },
             meta: { timestamp: new Date().toISOString() }
           }),
-          { showErrors: false }
+          { showErrors: false, skipLoading: true }
         );
         
         if (response.success && response.data.hasUpdate) {

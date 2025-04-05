@@ -41,13 +41,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const [isInternalLoading, setIsInternalLoading] = useState(true);
   
-  // Effect to handle initial loading state
+  // Effect to handle initial loading state - optimized for faster load
   useEffect(() => {
     if (isLoaded && isUserLoaded) {
-      // Add a small delay to ensure everything is properly initialized
+      // Reduce timeout for faster initialization
       const timer = setTimeout(() => {
         setIsInternalLoading(false);
-      }, 500);
+      }, 100);
       
       return () => clearTimeout(timer);
     }
@@ -75,10 +75,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const refetchUser = async () => {
     setIsInternalLoading(true);
-    // Add a small delay to ensure everything is properly refreshed
+    // Reduce timeout for faster refresh
     setTimeout(() => {
       setIsInternalLoading(false);
-    }, 500);
+    }, 100);
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,8 @@ import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
 import { Loading } from "@/components/ui/loading";
 import { Suspense, lazy, useEffect } from "react";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 // Use lazy loading for routes that aren't needed on initial load
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -19,8 +20,6 @@ const GeofencingSettings = lazy(() => import("./pages/GeofencingSettings"));
 const ApiDocs = lazy(() => import("./pages/ApiDocs"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Users = lazy(() => import("./pages/Users"));
-const Login = lazy(() => import("./pages/Login"));
-const SignUp = lazy(() => import("./pages/SignUp"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 
@@ -39,8 +38,8 @@ const queryClient = new QueryClient({
 
 // Custom loading component for suspense fallback with faster appearance
 const SuspenseFallback = () => (
-  <div className="p-8 bg-safesphere-dark min-h-screen flex items-center justify-center">
-    <Loading size="md" text="Loading..." delayedAppearance={false} />
+  <div className="p-4 bg-safesphere-dark min-h-screen flex items-center justify-center">
+    <Loading size="sm" text="Loading..." delayedAppearance={false} />
   </div>
 );
 
@@ -95,17 +94,15 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                <Route path="/login" element={
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <Login />
-                  </Suspense>
-                } />
-                <Route path="/sign-up" element={
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <SignUp />
-                  </Suspense>
-                } />
-                <Route path="/" element={<Index />} />
+                {/* Make login and signup routes load immediately without suspense */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/sign-up" element={<SignUp />} />
+                
+                {/* Redirect root to login page */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                
+                {/* Other routes use suspense for lazy loading */}
+                <Route path="/home" element={<Index />} />
                 <Route path="/dashboard" element={
                   <RequireAuth>
                     <Suspense fallback={<SuspenseFallback />}>

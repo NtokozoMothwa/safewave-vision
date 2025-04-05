@@ -13,42 +13,29 @@ import { Shield } from "lucide-react";
 interface LayoutProps {
   children: ReactNode;
   showSidebar?: boolean;
+  skipLoadingCheck?: boolean; // Add this to skip loading checks for certain pages
 }
 
-export function Layout({ children, showSidebar = true }: LayoutProps) {
+export function Layout({ children, showSidebar = true, skipLoadingCheck = false }: LayoutProps) {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
-  const [loadingProgress, setLoadingProgress] = useState(0);
   const [isContentReady, setIsContentReady] = useState(false);
 
-  // Improved loading progress simulation
+  // Improved handling of loading state
   useEffect(() => {
-    if (isLoading) {
-      // Start at a higher value to give a perception of faster loading
-      setLoadingProgress(30);
-      
-      // Using a faster interval for quicker updates
-      const interval = setInterval(() => {
-        setLoadingProgress(prev => {
-          // Accelerate progress more quickly
-          const increment = (100 - prev) * 0.15;
-          return Math.min(prev + increment, 95);
-        });
-      }, 100);
-      
-      return () => clearInterval(interval);
-    } else {
-      setLoadingProgress(100);
+    if (!isLoading || skipLoadingCheck) {
       // Reduced delay for faster transition
       const timer = setTimeout(() => {
         setIsContentReady(true);
-      }, 150);
+      }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [isLoading]);
+  }, [isLoading, skipLoadingCheck]);
 
-  if (isLoading) {
-    return <Loading size="lg" text="Loading application..." fullscreen progress={loadingProgress} delayedAppearance={false} />;
+  // Only show loading when authentication is actively being checked
+  // and we're not skipping the loading check
+  if (isLoading && !skipLoadingCheck) {
+    return <Loading size="md" text="Preparing application..." fullscreen delayedAppearance={false} />;
   }
 
   return (

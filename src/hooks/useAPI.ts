@@ -62,8 +62,8 @@ export function useAPI<T = any>(): ApiResponse<T> {
         requestOptions.body = JSON.stringify(body);
       }
 
-      // For demo purposes, simulate API call with reduced time
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // For demo purposes, simulate API call with minimal time
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Simulate API response
       const mockResponse = {
