@@ -32,7 +32,7 @@ export const useAppInitialization = () => {
                 data: [],
                 meta: { timestamp: new Date().toISOString() }
               }),
-              { showErrors: false, skipLoading: true }
+              { showErrors: false }
             );
             return response.data;
           },
@@ -59,7 +59,7 @@ export const useAppInitialization = () => {
               '/system/health',
               'GET',
               opts => apiClient.system.getHealth(opts),
-              { showErrors: false, skipLoading: true }
+              { showErrors: false }
             );
             return response.data;
           },
@@ -89,7 +89,7 @@ export const useAppInitialization = () => {
             },
             meta: { timestamp: new Date().toISOString() }
           }),
-          { showErrors: false, skipLoading: true }
+          { showErrors: false }
         );
         
         if (response.success && response.data.hasUpdate) {

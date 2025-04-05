@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, RequireAuth, RequireAdmin } from "@/context/AuthContext";
 import { Loading } from "@/components/ui/loading";
-import { Suspense, lazy, useEffect } from "react";
-import Index from "./pages/Index";
+import { Suspense, lazy } from "react";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 
@@ -22,8 +21,9 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Users = lazy(() => import("./pages/Users"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
+const Index = lazy(() => import("./pages/Index"));
 
-// Using a demo key since current one is invalid
+// Updated demo key
 const PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmlnc3VyLmxpc3RsZXNzLW1hbmF0ZWUtMzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 // Configure query client with lower stale time to improve initial load performance
@@ -32,7 +32,7 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 60 * 1000, // Reduced to 1 minute
+      staleTime: 30 * 1000, // Reduced even further to 30 seconds
     },
   },
 });
@@ -45,22 +45,6 @@ const SuspenseFallback = () => (
 );
 
 const App = () => {
-  useEffect(() => {
-    // Apply dark mode to the body to ensure proper styling
-    document.body.classList.add('dark');
-    
-    // Set up viewport height for mobile devices
-    const setVh = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    
-    setVh();
-    window.addEventListener('resize', setVh);
-    
-    return () => window.removeEventListener('resize', setVh);
-  }, []);
-
   return (
     <ClerkProvider 
       publishableKey={PUBLISHABLE_KEY}
@@ -95,13 +79,17 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                {/* Make login the default route */}
-                <Route path="/" element={<Login />} />
+                {/* Make login the explicit default route */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 
-                {/* Move index to /home */}
-                <Route path="/home" element={<Index />} />
+                {/* Home route separate from root route */}
+                <Route path="/home" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Index />
+                  </Suspense>
+                } />
                 
                 {/* Other routes use suspense for lazy loading */}
                 <Route path="/dashboard" element={

@@ -39,17 +39,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isLoaded, userId, signOut, getToken } = useClerkAuth();
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
-  const [isInternalLoading, setIsInternalLoading] = useState(true);
+  const [isInternalLoading, setIsInternalLoading] = useState(false); // Start with false to prevent double loading
   
   // Effect to handle initial loading state - optimized for faster load
   useEffect(() => {
-    if (isLoaded && isUserLoaded) {
-      // Reduce timeout for faster initialization
-      const timer = setTimeout(() => {
-        setIsInternalLoading(false);
-      }, 100);
-      
-      return () => clearTimeout(timer);
+    if (!isLoaded || !isUserLoaded) {
+      setIsInternalLoading(true);
+    } else {
+      // Remove timeout completely
+      setIsInternalLoading(false);
     }
   }, [isLoaded, isUserLoaded]);
   
@@ -78,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Reduce timeout for faster refresh
     setTimeout(() => {
       setIsInternalLoading(false);
-    }, 100);
+    }, 50); // Reduced even further
   };
 
   return (
