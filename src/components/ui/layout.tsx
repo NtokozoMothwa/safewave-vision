@@ -49,7 +49,7 @@ export function Layout({ children, showSidebar = true, skipLoadingCheck = false 
       >
         <Header rightContent={isAuthenticated ? <NotificationsBadge /> : undefined} />
         
-        <div className="flex flex-1">
+        <div className="flex flex-1 w-full">
           {showSidebar && isAuthenticated && <Sidebar />}
           
           <main className={cn(

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Loading } from "@/components/ui/loading";
 import { Suspense, lazy } from "react";
 import { AuthProvider } from "./context/AuthContext";
+import { SidebarProvider } from "./components/ui/sidebar";
 
 // Use lazy loading for routes that aren't needed on initial load
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -46,91 +47,93 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-right" theme="dark" toastOptions={{
-            classNames: {
-              toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
-              title: "text-safesphere-white",
-              description: "text-safesphere-white/70",
-              actionButton: "bg-safesphere-red text-white",
-              cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
-              closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
-            }
-          }} />
-          <BrowserRouter>
-            <Routes>
-              {/* Direct users to login page by default */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              
-              <Route path="/login" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Login />
-                </Suspense>
-              } />
-              <Route path="/sign-up" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <SignUp />
-                </Suspense>
-              } />
-              
-              {/* All routes are now accessible without authentication */}
-              <Route path="/dashboard" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Dashboard />
-                </Suspense>
-              } />
-              <Route path="/models" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Models />
-                </Suspense>
-              } />
-              <Route path="/settings" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Settings />
-                </Suspense>
-              } />
-              <Route path="/health-history" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <HealthHistory />
-                </Suspense>
-              } />
-              <Route path="/geofencing" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <GeofencingSettings />
-                </Suspense>
-              } />
-              <Route path="/api-docs" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <ApiDocs />
-                </Suspense>
-              } />
-              <Route path="/notifications" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Notifications />
-                </Suspense>
-              } />
-              <Route path="/admin" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <AdminDashboard />
-                </Suspense>
-              } />
-              <Route path="/users" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Users />
-                </Suspense>
-              } />
-              <Route path="/home" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Index />
-                </Suspense>
-              } />
-              <Route path="*" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <NotFound />
-                </Suspense>
-              } />
-            </Routes>
-          </BrowserRouter>
+          <SidebarProvider>
+            <Toaster />
+            <Sonner position="top-right" theme="dark" toastOptions={{
+              classNames: {
+                toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
+                title: "text-safesphere-white",
+                description: "text-safesphere-white/70",
+                actionButton: "bg-safesphere-red text-white",
+                cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
+                closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
+              }
+            }} />
+            <BrowserRouter>
+              <Routes>
+                {/* Direct users to login page by default */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                
+                <Route path="/login" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Login />
+                  </Suspense>
+                } />
+                <Route path="/sign-up" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <SignUp />
+                  </Suspense>
+                } />
+                
+                {/* All routes are now accessible without authentication */}
+                <Route path="/dashboard" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Dashboard />
+                  </Suspense>
+                } />
+                <Route path="/models" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Models />
+                  </Suspense>
+                } />
+                <Route path="/settings" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Settings />
+                  </Suspense>
+                } />
+                <Route path="/health-history" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <HealthHistory />
+                  </Suspense>
+                } />
+                <Route path="/geofencing" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <GeofencingSettings />
+                  </Suspense>
+                } />
+                <Route path="/api-docs" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <ApiDocs />
+                  </Suspense>
+                } />
+                <Route path="/notifications" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Notifications />
+                  </Suspense>
+                } />
+                <Route path="/admin" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <AdminDashboard />
+                  </Suspense>
+                } />
+                <Route path="/users" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Users />
+                  </Suspense>
+                } />
+                <Route path="/home" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <Index />
+                  </Suspense>
+                } />
+                <Route path="*" element={
+                  <Suspense fallback={<SuspenseFallback />}>
+                    <NotFound />
+                  </Suspense>
+                } />
+              </Routes>
+            </BrowserRouter>
+          </SidebarProvider>
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
