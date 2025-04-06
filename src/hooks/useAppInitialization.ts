@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/services/api';
 import { makeAuthRequest } from './useApiUtils';
-import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 /**
@@ -11,12 +10,8 @@ import { toast } from 'sonner';
  */
 export const useAppInitialization = () => {
   const queryClient = useQueryClient();
-  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    // Only prefetch data if the user is authenticated
-    if (!isAuthenticated || !user) return;
-
     // Function to prefetch only the most critical data
     const prefetchCriticalData = async () => {
       try {
@@ -115,5 +110,5 @@ export const useAppInitialization = () => {
       clearTimeout(nonCriticalTimer);
       clearTimeout(updateTimer);
     };
-  }, [isAuthenticated, user, queryClient]);
+  }, [queryClient]);
 };

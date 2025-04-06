@@ -1,17 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  useUser, 
-  useAuth as useClerkAuth, 
-  SignIn, 
-  SignUp,
-  UserButton,
-  SignedIn,
-  SignedOut 
-} from '@clerk/clerk-react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { toast } from 'sonner';
-import { Loading } from '@/components/ui/loading';
+import React from 'react';
 
 // Define user types and roles
 export type UserRole = 'user' | 'admin';
@@ -33,54 +21,40 @@ interface AuthContextType {
   refetchUser: () => void;
 }
 
-// Create the auth context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create a dummy auth context with a default user
+const AuthContext = React.createContext<AuthContextType>({
+  user: {
+    id: 'default-user',
+    name: 'SafeSphere User',
+    email: 'user@example.com',
+    role: 'admin', // Set to admin to enable all features
+    avatarUrl: undefined
+  },
+  isAuthenticated: true, // Always authenticated
+  isAdmin: true, // Always admin
+  logout: () => {}, // No-op function
+  isLoading: false,
+  refetchUser: () => {}
+});
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded, userId, signOut } = useClerkAuth();
-  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Very simplified loading state
-  useEffect(() => {
-    if (isLoaded && isUserLoaded) {
-      setIsLoading(false);
-    }
-  }, [isLoaded, isUserLoaded]);
-  
-  // Map Clerk user to our User interface
-  const user: User | null = clerkUser ? {
-    id: clerkUser.id,
-    name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || 'User',
-    email: clerkUser.emailAddresses[0]?.emailAddress || '',
-    // For demo, determine admin role based on email domain
-    role: clerkUser.emailAddresses.some(email => 
-      email.emailAddress?.includes('admin')) ? 'admin' : 'user',
-    avatarUrl: clerkUser.imageUrl || undefined
-  } : null;
-  
-  const isAuthenticated = !!userId;
-  const isAdmin = user?.role === 'admin';
-
-  const logout = () => {
-    if (signOut) {
-      signOut();
-      toast.info('You have been logged out');
-    }
-  };
-  
-  const refetchUser = () => {
-    // No need to set loading state for refetch
+  // Create a dummy implementation with a default user
+  const defaultUser: User = {
+    id: 'default-user',
+    name: 'SafeSphere User',
+    email: 'user@example.com',
+    role: 'admin', // Set to admin to enable all features
+    avatarUrl: undefined
   };
 
   return (
     <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      isAdmin, 
-      logout, 
-      isLoading,
-      refetchUser
+      user: defaultUser, 
+      isAuthenticated: true, 
+      isAdmin: true, 
+      logout: () => {}, 
+      isLoading: false,
+      refetchUser: () => {}
     }}>
       {children}
     </AuthContext.Provider>
@@ -88,51 +62,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return React.useContext(AuthContext);
 };
 
-// Protected route component for regular users
+// Create no-op implementations of the Clerk components to prevent errors
 export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
-  
-  if (isLoading) {
-    return <Loading size="md" text="Checking authentication..." fullscreen />;
-  }
-  
-  if (!isAuthenticated) {
-    toast.error('You must be logged in to access this page');
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  
   return <>{children}</>;
 };
 
-// Protected route component for admins
 export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
-  const location = useLocation();
-  
-  if (isLoading) {
-    return <Loading size="md" text="Checking authorization..." fullscreen />;
-  }
-  
-  if (!isAuthenticated) {
-    toast.error('You must be logged in to access this page');
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  
-  if (!isAdmin) {
-    toast.error('You do not have permission to access this page');
-    return <Navigate to="/" replace />;
-  }
-  
   return <>{children}</>;
 };
 
-// Export Clerk components for use in the app
-export { SignIn, SignUp, UserButton, SignedIn, SignedOut };
+// Export dummy components for compatibility
+export const SignIn = () => <div>Sign In (Disabled)</div>;
+export const SignUp = () => <div>Sign Up (Disabled)</div>;
+export const UserButton = () => <div>User Button (Disabled)</div>;
+export const SignedIn = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+export const SignedOut = ({ children }: { children: React.ReactNode }) => null;
