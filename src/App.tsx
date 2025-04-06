@@ -23,8 +23,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Index = lazy(() => import("./pages/Index"));
 
-// Fixed key for demo purposes
-const PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmlnc3VyLmxpc3RsZXNzLW1hbmF0ZWUtMzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
+// Updated key format for Clerk
+const PUBLISHABLE_KEY = "pk_test_bGlzdGxlc3MtbWFuYXRlZS0zMC5jbGVyay5hY2NvdW50cy5kZXYk";
 
 // Configure query client with lower stale time to improve initial load performance
 const queryClient = new QueryClient({
@@ -79,8 +79,8 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                {/* Default route redirects to login */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
+                {/* Direct to login to prevent loading issues */}
+                <Route path="/" element={<Login />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 
