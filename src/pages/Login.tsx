@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Loading } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { LogIn, ArrowRight, Key } from 'lucide-react';
+import { LogIn, ArrowRight, Key, Shield, Bell } from 'lucide-react';
 
 const Login = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -80,6 +80,14 @@ const Login = () => {
           
           <CardContent className="relative z-10">
             <SignIn />
+            
+            {/* Quick access login button (since we're using dummy auth) */}
+            <Button 
+              className="w-full mt-4 bg-safesphere-red hover:bg-safesphere-red-light" 
+              onClick={() => navigate('/dashboard')}
+            >
+              <LogIn className="mr-2 h-4 w-4" /> Quick Access
+            </Button>
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-3 pt-0 relative z-10">
@@ -97,10 +105,18 @@ const Login = () => {
               </Button>
             </div>
             
-            <div className="text-center text-xs text-safesphere-white-muted/40 mt-4">
-              <div className="flex items-center justify-center">
-                <Key className="h-3 w-3 mr-1" />
-                <span>End-to-end encrypted for your security</span>
+            <div className="mt-6 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="p-2 rounded-md bg-safesphere-dark-hover border border-white/5">
+                <Shield className="h-4 w-4 mx-auto mb-1 text-safesphere-red" />
+                <p className="text-safesphere-white-muted/70">Secure Access</p>
+              </div>
+              <div className="p-2 rounded-md bg-safesphere-dark-hover border border-white/5">
+                <Bell className="h-4 w-4 mx-auto mb-1 text-safesphere-red" />
+                <p className="text-safesphere-white-muted/70">Real-time Alerts</p>
+              </div>
+              <div className="p-2 rounded-md bg-safesphere-dark-hover border border-white/5">
+                <Key className="h-4 w-4 mx-auto mb-1 text-safesphere-red" />
+                <p className="text-safesphere-white-muted/70">End-to-End Encrypted</p>
               </div>
             </div>
           </CardFooter>

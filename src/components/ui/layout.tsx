@@ -1,7 +1,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import Header from "@/components/Header";
-import { Sidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/AuthContext";
 import AnimatedTransition from "../AnimatedTransition";
 import NotificationsBadge from "../NotificationsBadge";
@@ -12,11 +11,10 @@ import { Shield } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
-  showSidebar?: boolean;
   skipLoadingCheck?: boolean; // Add this to skip loading checks for certain pages
 }
 
-export function Layout({ children, showSidebar = true, skipLoadingCheck = false }: LayoutProps) {
+export function Layout({ children, skipLoadingCheck = false }: LayoutProps) {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const [isContentReady, setIsContentReady] = useState(false);
 
@@ -49,37 +47,32 @@ export function Layout({ children, showSidebar = true, skipLoadingCheck = false 
       >
         <Header rightContent={isAuthenticated ? <NotificationsBadge /> : undefined} />
         
-        <div className="flex flex-1 w-full">
-          {showSidebar && isAuthenticated && <Sidebar />}
-          
-          <main className={cn(
-            "flex-1 pt-16", 
-            showSidebar && isAuthenticated ? "lg:ml-[280px]" : "",
-            isContentReady ? "opacity-100" : "opacity-0"
-          )}>
-            <AnimatedTransition>
-              {isAdmin && (
-                <motion.div 
-                  className="bg-safesphere-red-dark py-2 px-4 text-center text-sm flex items-center justify-center gap-2"
-                  initial={{ y: -40 }}
-                  animate={{ y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <Shield size={16} />
-                  <span>Admin Mode - You have elevated permissions</span>
-                </motion.div>
-              )}
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 }}
+        <main className={cn(
+          "flex-1 pt-16",
+          isContentReady ? "opacity-100" : "opacity-0"
+        )}>
+          <AnimatedTransition>
+            {isAdmin && (
+              <motion.div 
+                className="bg-safesphere-red-dark py-2 px-4 text-center text-sm flex items-center justify-center gap-2"
+                initial={{ y: -40 }}
+                animate={{ y: 0 }}
+                transition={{ delay: 0.1 }}
               >
-                {children}
+                <Shield size={16} />
+                <span>Admin Mode - You have elevated permissions</span>
               </motion.div>
-            </AnimatedTransition>
-          </main>
-        </div>
+            )}
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+            >
+              {children}
+            </motion.div>
+          </AnimatedTransition>
+        </main>
       </motion.div>
     </AnimatePresence>
   );
