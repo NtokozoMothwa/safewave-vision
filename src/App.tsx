@@ -23,7 +23,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Index = lazy(() => import("./pages/Index"));
 
-// Fixed key
+// Fixed key for demo purposes
 const PUBLISHABLE_KEY = "pk_test_Y2xlcmsuYmlnc3VyLmxpc3RsZXNzLW1hbmF0ZWUtMzAuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 // Configure query client with lower stale time to improve initial load performance
@@ -32,7 +32,7 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 30 * 1000, // Reduced even further to 30 seconds
+      staleTime: 30 * 1000,
     },
   },
 });
@@ -80,7 +80,7 @@ const App = () => {
             <BrowserRouter>
               <Routes>
                 {/* Default route redirects to login */}
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 

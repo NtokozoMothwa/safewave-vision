@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   
-  // Effect to handle initial loading state
+  // Simplified loading state
   useEffect(() => {
     if (isLoaded && isUserLoaded) {
       setIsLoading(false);

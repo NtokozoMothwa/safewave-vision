@@ -1,14 +1,33 @@
 
 import React from 'react';
 import { Layout } from '@/components/ui/layout';
-import { useApi } from '@/hooks/useApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Book, FileJson, FileText } from 'lucide-react';
 
 const ApiDocs: React.FC = () => {
-  const { api } = useApi();
+  // Mock API data for documentation
+  const api = {
+    openapi: "3.0.0",
+    info: {
+      title: "SafeSphere API",
+      version: "1.0.0",
+      description: "API documentation for SafeSphere"
+    },
+    paths: {
+      "/api/users": {
+        get: {
+          summary: "Get all users",
+          responses: {
+            "200": {
+              description: "OK"
+            }
+          }
+        }
+      }
+    }
+  };
 
   return (
     <Layout>
