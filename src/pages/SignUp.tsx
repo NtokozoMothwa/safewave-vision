@@ -76,7 +76,7 @@ const SignUp = () => {
           </CardHeader>
           
           <CardContent className="relative z-10">
-            <ClerkSignUp redirectUrl="/dashboard" />
+            <ClerkSignUp />
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-3 pt-0 relative z-10">

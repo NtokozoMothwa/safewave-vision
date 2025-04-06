@@ -79,7 +79,7 @@ const Login = () => {
           </CardHeader>
           
           <CardContent className="relative z-10">
-            <SignIn redirectUrl={from} />
+            <SignIn />
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-3 pt-0 relative z-10">
