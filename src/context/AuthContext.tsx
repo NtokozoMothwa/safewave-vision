@@ -41,13 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   
-  // Simple loading state based on Clerk loading
+  // Very simplified loading state
   useEffect(() => {
     if (isLoaded && isUserLoaded) {
-      // Short timeout to ensure Clerk is fully initialized
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 50);
+      setIsLoading(false);
     }
   }, [isLoaded, isUserLoaded]);
   
@@ -73,10 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   
   const refetchUser = () => {
-    // No need to set loading to true before fetching since this is just a refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 50);
+    // No need to set loading state for refetch
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,7 +24,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Index = lazy(() => import("./pages/Index"));
 
-// Updated key format for Clerk
+// Simple key for demo
 const PUBLISHABLE_KEY = "pk_test_bGlzdGxlc3MtbWFuYXRlZS0zMC5jbGVyay5hY2NvdW50cy5kZXYk";
 
 // Configure query client with lower stale time to improve initial load performance
@@ -71,7 +72,7 @@ const App = () => {
               classNames: {
                 toast: "bg-safesphere-dark-card border-white/10 text-safesphere-white",
                 title: "text-safesphere-white",
-                description: "text-safesphere-white-muted/70",
+                description: "text-safesphere-white/70",
                 actionButton: "bg-safesphere-red text-white",
                 cancelButton: "bg-safesphere-dark-hover text-safesphere-white",
                 closeButton: "text-safesphere-white-muted/60 hover:text-safesphere-white",
@@ -79,8 +80,8 @@ const App = () => {
             }} />
             <BrowserRouter>
               <Routes>
-                {/* Direct to login to prevent loading issues */}
-                <Route path="/" element={<Login />} />
+                {/* Simple redirect to Login as the root route */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/sign-up" element={<SignUp />} />
                 
