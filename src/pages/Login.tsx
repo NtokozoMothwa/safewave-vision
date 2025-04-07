@@ -1,19 +1,24 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { SignIn, useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Loading } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { LogIn, ArrowRight, Key, Shield, Bell } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const Login = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get the intended destination from location state or use default
   const from = (location.state as any)?.from?.pathname || '/dashboard';
@@ -40,6 +45,19 @@ const Login = () => {
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const success = await login(email, password);
+      if (success) {
+        navigate('/dashboard');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (isLoading) {
     return <Loading size="md" text="Loading authentication..." fullscreen progress={loadingProgress} />;
@@ -79,15 +97,85 @@ const Login = () => {
           </CardHeader>
           
           <CardContent className="relative z-10">
-            <SignIn />
-            
-            {/* Quick access login button (since we're using dummy auth) */}
-            <Button 
-              className="w-full mt-4 bg-safesphere-red hover:bg-safesphere-red-light" 
-              onClick={() => navigate('/dashboard')}
-            >
-              <LogIn className="mr-2 h-4 w-4" /> Quick Access
-            </Button>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email"
+                  type="email" 
+                  placeholder="your@email.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-safesphere-dark-hover border-white/10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-xs text-safesphere-red hover:text-safesphere-red-light transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input 
+                  id="password"
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-safesphere-dark-hover border-white/10"
+                />
+              </div>
+              
+              <Button 
+                type="submit"
+                className="w-full bg-safesphere-red hover:bg-safesphere-red-light"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>Loading...</>
+                ) : (
+                  <>Sign In <LogIn className="ml-2 h-4 w-4" /></>
+                )}
+              </Button>
+              
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-safesphere-dark-card px-2 text-safesphere-white-muted/40">
+                  Or try demo accounts
+                </span>
+                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/5"></div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="border-white/10 hover:bg-safesphere-dark-hover"
+                  onClick={() => {
+                    setEmail('user@safesphere.com');
+                    setPassword('password123');
+                  }}
+                >
+                  User Demo
+                </Button>
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="border-white/10 hover:bg-safesphere-dark-hover"
+                  onClick={() => {
+                    setEmail('admin@safesphere.com');
+                    setPassword('password123');
+                  }}
+                >
+                  Admin Demo
+                </Button>
+              </div>
+            </form>
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-3 pt-0 relative z-10">
