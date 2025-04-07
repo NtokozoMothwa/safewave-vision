@@ -21,6 +21,9 @@ app.use("/api/threat", threatRoutes);
 app.get("/", (req, res) => {
   res.send("🌐 SGX SafeSphere Backend Running");
 });
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "🧠 SafeSphere API healthy!" });
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
