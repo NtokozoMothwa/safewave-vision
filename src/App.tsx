@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,8 +7,10 @@ import { Loading } from "@/components/ui/loading";
 import { Suspense, lazy } from "react";
 import { AuthProvider } from "./context/AuthContext";
 
+// Import Dashboard component directly to avoid lazy loading issues
+import Dashboard from "./pages/Dashboard";
+
 // Use lazy loading for routes that aren't needed on initial load
-const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Models = lazy(() => import("./pages/Models"));
 const Settings = lazy(() => import("./pages/Settings"));
 const HealthHistory = lazy(() => import("./pages/HealthHistory"));
@@ -73,12 +74,10 @@ const App = () => {
                 </Suspense>
               } />
               
-              {/* All routes are now accessible without authentication */}
-              <Route path="/dashboard" element={
-                <Suspense fallback={<SuspenseFallback />}>
-                  <Dashboard />
-                </Suspense>
-              } />
+              {/* Dashboard is now imported directly, not lazily loaded */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Keep all other routes lazy loaded */}
               <Route path="/models" element={
                 <Suspense fallback={<SuspenseFallback />}>
                   <Models />
