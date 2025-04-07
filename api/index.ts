@@ -1,37 +1,49 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import alertRoutes from "./routes/alert";
-import threatRoutes from "./routes/threat";
-import authRoutes from "./routes/auth";
-import deviceRoutes from "./routes/device";
+import mongoose from "mongoose";
+import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
+import userRoutes from "./routes/userRoutes";
+import alertRoutes from "./routes/alertRoutes";
+import { notFound, errorHandler } from "./middleware/errorMiddleware";
 
 dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 5000;
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/device", deviceRoutes);
-app.use("/api/alert", alertRoutes);
-app.use("/api/threat", threatRoutes);
-
-app.get("/", (req, res) => {
-  res.send("🌐 SGX SafeSphere Backend Running");
-});
-app.get("/health", (req, res) => {
-  res.status(200).json({ message: "🧠 SafeSphere API healthy!" });
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
-
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
-import alertRoutes from "./routes/alertRoutes";
+app.use("/api/users", userRoutes);
 app.use("/api/alerts", alertRoutes);
+app.use(notFound);
+app.use(errorHandler);
+
+// --- Socket.IO Setup ---
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Update this to your frontend origin
+    methods: ["GET", "POST", "PUT"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("🟢 Socket connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Socket disconnected:", socket.id);
+  });
+});
+
+// Make io accessible everywhere
+export { io };
+
+// --- Connect DB and Start Server ---
+const PORT = process.env.PORT || 5000;
+mongoose
+  .connect(process.env.MONGO_URI!)
+  .then(() => {
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error(err));
