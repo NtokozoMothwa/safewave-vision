@@ -1,5 +1,6 @@
 import AlertFeed from "./components/AlertFeed";
 import React from "react";
+import TriggerAlertPanel from "./components/TriggerAlertPanel";
 import LiveAlert from "./components/LiveAlert";
 <AlertFeed />
 function App() {
