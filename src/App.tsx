@@ -3,6 +3,7 @@ import React from "react";
 import TriggerAlertPanel from "./components/TriggerAlertPanel";
 import LiveAlert from "./components/LiveAlert";
 <AlertFeed />
+<TriggerAlertPanel />
 function App() {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
