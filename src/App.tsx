@@ -1,3 +1,4 @@
+import AlertFeed from "./components/AlertFeed";
 import React from "react";
 import LiveAlert from "./components/LiveAlert";
 
