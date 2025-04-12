@@ -1,39 +1,30 @@
-import React, { useEffect } from "react";
-import { useAlert } from "../context/AlertContext";
+import React, { useState } from "react";
+import { useSocket } from "../hooks/useSocket";
 
 const Dashboard = () => {
-  const { alerts, triggerTestAlert } = useAlert();
+  const [alerts, setAlerts] = useState<string[]>([]);
 
-  useEffect(() => {
-    console.log("Active alerts:", alerts);
-  }, [alerts]);
+  useSocket("alert", (data) => {
+    setAlerts((prev) => [data.message, ...prev]);
+  });
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">SafeWave Dashboard</h1>
-
-      <div className="bg-red-100 p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Live Emergency Feed</h2>
-        {alerts.length === 0 ? (
-          <p className="text-sm text-gray-600">No active alerts.</p>
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <div className="space-y-2">
+        {alerts.length > 0 ? (
+          alerts.map((alert, index) => (
+            <div
+              key={index}
+              className="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded-lg shadow-sm"
+            >
+              ⚠️ {alert}
+            </div>
+          ))
         ) : (
-          <ul className="space-y-2">
-            {alerts.map((alert, index) => (
-              <li key={index} className="p-2 bg-white rounded shadow">
-                <strong>{alert.type}</strong> from {alert.sender} at{" "}
-                {new Date(alert.timestamp).toLocaleTimeString()}
-              </li>
-            ))}
-          </ul>
+          <p className="text-gray-500">No alerts at the moment</p>
         )}
       </div>
-
-      <button
-        onClick={triggerTestAlert}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-      >
-        Trigger Test Alert
-      </button>
     </div>
   );
 };
