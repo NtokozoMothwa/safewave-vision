@@ -1,21 +1,28 @@
 import React from "react";
-import { AlertProvider } from "./context/AlertContext";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
-// import other components or pages as you create them
+import UserMonitor from "./pages/UserMonitor";
+import DeviceControl from "./pages/DeviceControl";
+import Settings from "./pages/Settings";
+import Navbar from "./components/Navbar";
 
-function App() {
+const App = () => {
   return (
-    <AlertProvider>
-      <div className="min-h-screen bg-white text-black">
+    <Router>
+      <div className="min-h-screen bg-gray-100 text-gray-900">
         <Navbar />
-        <main className="p-4">
-          <Dashboard />
-        </main>
+        <div className="p-4">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/user-monitor" element={<UserMonitor />} />
+            <Route path="/device-control" element={<DeviceControl />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </div>
       </div>
-    </AlertProvider>
+    </Router>
   );
-}
+};
 
 export default App;
