@@ -1,18 +1,41 @@
-import AlertFeed from "./components/AlertFeed";
-import React from "react";
-import TriggerAlertPanel from "./components/TriggerAlertPanel";
-import LiveAlert from "./components/LiveAlert";
-<AlertFeed />
-<TriggerAlertPanel />
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import { AlertCircle } from "lucide-react";
+import AIInsights from "./components/AIInsights";
+import "./App.css";
+
+const socket: Socket = io("http://localhost:3001"); // make sure this matches your backend port
+
 function App() {
+  const [alerts, setAlerts] = useState([]);
+
+  useEffect(() => {
+    socket.on("alert", (data) => {
+      console.log("Received alert:", data);
+      setAlerts((prev) => [...prev, data]);
+    });
+
+    return () => {
+      socket.off("alert");
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <LiveAlert />
-      <main className="p-4">
-        <h1 className="text-2xl font-bold">SafeWave Vision</h1>
-        
-        <p className="mt-2">Welcome to SGX's safety platform 🚨</p>
-      </main>
+    <div className="p-6 space-y-4">
+      <h1 className="text-3xl font-bold text-center">SafeWave Dashboard</h1>
+      {alerts.length > 0 ? (
+        <div className="space-y-2">
+          {alerts.map((alert, index) => (
+            <div key={index} className="flex items-center space-x-2 bg-red-100 p-4 rounded">
+              <AlertCircle className="text-red-500" />
+              <p className="text-red-800">{alert.message}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">No threats detected yet.</p>
+      )}
+      <AIInsights />
     </div>
   );
 }
