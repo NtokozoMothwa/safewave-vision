@@ -1,5 +1,6 @@
 import AlertList from "@/components/dashboard/AlertList"
 import MapView from "@/components/dashboard/MapView"
+import { ThreatMonitor } from "@/components/ThreatMonitor";
 
 export default function Dashboard() {
   return (
@@ -9,3 +10,7 @@ export default function Dashboard() {
     </div>
   )
 }
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <AlertsPanel />
+  <ThreatMonitor /> {/* ← Add here */}
+</div>
