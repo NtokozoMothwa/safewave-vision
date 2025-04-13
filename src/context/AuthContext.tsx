@@ -34,9 +34,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const logout = () => {
-    localStorage.removeItem("user")
-    setUser(null)
-  }
+  localStorage.removeItem("user")
+  setUser(null)
+  window.location.href = "/" // force refresh
+}
+
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
