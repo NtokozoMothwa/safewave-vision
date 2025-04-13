@@ -4,6 +4,7 @@ import { ThreatMonitor } from "@/components/ThreatMonitor";
 import { GeofenceMap } from "@/components/GeofenceMap";
 import { LiveAlerts } from "@/components/LiveAlerts";
 import { ActivityLog } from "@/components/ActivityLog";
+import { DeviceRegistration } from "@/components/DeviceRegistration";
 
 // Add this after the map and monitor
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -13,6 +14,10 @@ import { ActivityLog } from "@/components/ActivityLog";
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
   <LiveAlerts />
   <ActivityLog />
+</div>
+
+  <div className="mt-8">
+  <DeviceRegistration />
 </div>
 
 {/* Somewhere in your JSX layout */}
