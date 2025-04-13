@@ -3,10 +3,16 @@ import MapView from "@/components/dashboard/MapView"
 import { ThreatMonitor } from "@/components/ThreatMonitor";
 import { GeofenceMap } from "@/components/GeofenceMap";
 import { LiveAlerts } from "@/components/LiveAlerts";
+import { ActivityLog } from "@/components/ActivityLog";
 
 // Add this after the map and monitor
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
   <LiveAlerts />
+</div>
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+  <LiveAlerts />
+  <ActivityLog />
 </div>
 
 {/* Somewhere in your JSX layout */}
