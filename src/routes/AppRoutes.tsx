@@ -8,7 +8,8 @@ export default function AppRoutes() {
 
   if (!user) {
     return (
-      <Routes>
+      <Route path="/responder" element={<ResponderConsole />} />
+
         <Route path="*" element={<Login />} />
       </Routes>
     )
