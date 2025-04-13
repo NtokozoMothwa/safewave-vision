@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
+{user?.role === "responder" && (
+  <Link to="/responder" className="hover:underline">Responder Console</Link>
+)}
 
 export default function Navbar() {
   const { user, logout } = useAuth()
