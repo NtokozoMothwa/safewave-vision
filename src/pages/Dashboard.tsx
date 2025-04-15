@@ -7,6 +7,7 @@ import { ActivityLog } from "@/components/ActivityLog";
 import { DeviceRegistration } from "@/components/DeviceRegistration";
 import { GeofenceEditor } from "@/components/GeofenceEditor";
 import { WearableMonitor } from "@/components/WearableMonitor";
+import { triggerEmergency } from '@/features/wearable/alertService';
 
 // Add this after the map and monitor
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
