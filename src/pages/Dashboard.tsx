@@ -7,7 +7,32 @@ import { ActivityLog } from "@/components/ActivityLog";
 import { DeviceRegistration } from "@/components/DeviceRegistration";
 import { GeofenceEditor } from "@/components/GeofenceEditor";
 import { WearableMonitor } from "@/components/WearableMonitor";
-import { triggerEmergency } from '@/features/wearable/alertService';
+import { triggerEmergency } from '../features/wearable/alertService';
+
+function Dashboard() {
+  const handlePanicClick = async () => {
+    const lat = -25.7479;
+    const lng = 28.2293;
+    await triggerEmergency(lat, lng);
+  };
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Welcome to the SafeSphere Dashboard</h1>
+      
+      {/* 🚨 Panic Button */}
+      <button
+        onClick={handlePanicClick}
+        className="bg-red-600 hover:bg-red-700 text-white p-2 rounded mt-4"
+      >
+        🚨 Trigger Emergency
+      </button>
+    </div>
+  );
+}
+
+export default Dashboard;
+
 
 // Add this after the map and monitor
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
