@@ -5,10 +5,15 @@ import { GeofenceMap } from "@/components/GeofenceMap";
 import { LiveAlerts } from "@/components/LiveAlerts";
 import { ActivityLog } from "@/components/ActivityLog";
 import { DeviceRegistration } from "@/components/DeviceRegistration";
+import { GeofenceEditor } from "@/components/GeofenceEditor";
 
 // Add this after the map and monitor
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
   <LiveAlerts />
+</div>
+
+  <div className="mt-8">
+  <GeofenceEditor />
 </div>
 
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
