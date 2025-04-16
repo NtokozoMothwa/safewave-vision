@@ -19,6 +19,16 @@ import SecurityControls from './SecurityControls';
 import UserGuidePanel from './UserGuidePanel';
 import ProductEditions from './ProductEditions';
 import ApiStatus from './ApiStatus';
+import IntelligencePanel from "./IntelligencePanel";
+
+// Add this inside your return JSX:
+<IntelligencePanel
+  lastAlert="Panic button triggered"
+  activeThreats={["Unidentified movement", "Unauthorized device"]}
+  zone="Zone B - Urban District"
+  time={new Date().toLocaleString()}
+  location="Corner of 4th & Pine"
+/>
 
 const Dashboard: React.FC = () => {
   return (
