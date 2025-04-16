@@ -31,6 +31,8 @@ import IntelligencePanel from "./IntelligencePanel";
 />
 
 <ResponderConnect />
+  <IncidentEscalation />
+
 
 const Dashboard: React.FC = () => {
   return (
