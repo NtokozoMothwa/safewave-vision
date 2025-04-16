@@ -8,6 +8,8 @@ import { DeviceRegistration } from "@/components/DeviceRegistration";
 import { GeofenceEditor } from "@/components/GeofenceEditor";
 import { WearableMonitor } from "@/components/WearableMonitor";
 import { triggerEmergency } from '../features/wearable/alertService';
+import { useEffect, useState } from 'react';
+import socket from '../utils/socket';
 
 function Dashboard() {
   const handlePanicClick = async () => {
