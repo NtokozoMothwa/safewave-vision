@@ -30,6 +30,8 @@ import IntelligencePanel from "./IntelligencePanel";
   location="Corner of 4th & Pine"
 />
 
+<ResponderConnect />
+
 const Dashboard: React.FC = () => {
   return (
     <AnimatedTransition className="max-w-7xl mx-auto">
