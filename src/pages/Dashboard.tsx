@@ -10,6 +10,10 @@ import { WearableMonitor } from "@/components/WearableMonitor";
 import { triggerEmergency } from '../features/wearable/alertService';
 import { useEffect, useState } from 'react';
 import socket from '../utils/socket';
+import EmergencyMap from '../components/EmergencyMap';
+
+// Inside the return JSX
+<EmergencyMap />
 
 function Dashboard() {
   const handlePanicClick = async () => {
