@@ -21,7 +21,7 @@ import ProductEditions from './ProductEditions';
 import ApiStatus from './ApiStatus';
 import IntelligencePanel from "./IntelligencePanel";
 
-// Add this inside your return JSX:
+// Add this inside your returns JSX:
 <IntelligencePanel
   lastAlert="Panic button triggered"
   activeThreats={["Unidentified movement", "Unauthorized device"]}
