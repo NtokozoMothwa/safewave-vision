@@ -11,6 +11,8 @@ import { triggerEmergency } from '../features/wearable/alertService';
 import { useEffect, useState } from 'react';
 import socket from '../utils/socket';
 import EmergencyMap from '../components/EmergencyMap';
+import { getNearbyPartners } from "../utils/partners";
+
 
 // Inside the return JSX
 <EmergencyMap />
