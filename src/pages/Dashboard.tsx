@@ -24,6 +24,17 @@ function Dashboard() {
     await triggerEmergency(lat, lng);
   };
 
+  const [partners, setPartners] = useState([]);
+
+useEffect(() => {
+  const fetchPartners = async () => {
+    const results = await getNearbyPartners(/* Insert lat/lng later */);
+    setPartners(results);
+  };
+
+  fetchPartners();
+}, []);
+
   const [emergencyAlerts, setEmergencyAlerts] = useState([]);
 
 useEffect(() => {
@@ -46,6 +57,20 @@ useEffect(() => {
         onClick={handlePanicClick}
         className="bg-red-600 hover:bg-red-700 text-white p-2 rounded mt-4"
       >
+        <div className="mt-6 p-4 bg-white rounded shadow">
+  <h3 className="text-lg font-semibold mb-2">Nearby Security Partners</h3>
+  <ul className="space-y-2">
+    {partners.map((partner) => (
+      <li key={partner.id} className="border p-2 rounded">
+        <p className="font-medium">{partner.name}</p>
+        <p>Distance: {partner.distance}</p>
+        <p>ETA: {partner.eta}</p>
+        <p>Status: <span className="text-green-600">{partner.status}</span></p>
+      </li>
+    ))}
+  </ul>
+</div>
+
         <div className="mt-6">
   <h2 className="text-xl font-semibold mb-2">Live Emergency Alerts</h2>
   {emergencyAlerts.length === 0 ? (
