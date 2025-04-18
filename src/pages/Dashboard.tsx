@@ -18,6 +18,28 @@ import IncidentHistory from '@/components/IncidentHistory';
 import ResponderAssignPanel from '@/components/ResponderAssignPanel';
 import NotificationToast from '@/components/NotificationToast';
 import { useToast } from '@/hooks/useToast';
+// src/pages/Dashboard.tsx
+import { getUserRole } from '@/utils/auth';
+import AdminDashboard from '@/components/dashboards/AdminDashboard';
+import ResponderDashboard from '@/components/dashboards/ResponderDashboard';
+import GuardDashboard from '@/components/dashboards/GuardDashboard';
+
+const Dashboard = () => {
+  const role = getUserRole();
+
+  switch (role) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'responder':
+      return <ResponderDashboard />;
+    case 'guard':
+      return <GuardDashboard />;
+    default:
+      return <div>Unauthorized</div>;
+  }
+};
+
+export default Dashboard;
 
 
 // Inside the return JSX
