@@ -13,6 +13,7 @@ import socket from '../utils/socket';
 import EmergencyMap from '../components/EmergencyMap';
 import { getNearbyPartners } from "../utils/partners";
 import { dispatchResponder } from "../utils/dispatch";
+import RouteMap from "../components/RouteMap";
 
 
 // Inside the return JSX
