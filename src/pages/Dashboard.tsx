@@ -16,6 +16,8 @@ import { dispatchResponder } from "../utils/dispatch";
 import RouteMap from "../components/RouteMap";
 import IncidentHistory from '@/components/IncidentHistory';
 import ResponderAssignPanel from '@/components/ResponderAssignPanel';
+import NotificationToast from '@/components/NotificationToast';
+import { useToast } from '@/hooks/useToast';
 
 
 // Inside the return JSX
@@ -30,6 +32,7 @@ function Dashboard() {
 
   const [partners, setPartners] = useState([]);
 const [dispatched, setDispatched] = useState<any>(null);
+const { message, visible, showToast } = useToast();
 
 useEffect(() => {
   const fetchPartners = async () => {
@@ -41,6 +44,7 @@ useEffect(() => {
 }, []);
 
   const [emergencyAlerts, setEmergencyAlerts] = useState([]);
+{visible && <NotificationToast message={message} onClose={() => {}} />}
 
 useEffect(() => {
   socket.on('emergency-alert', (data) => {
