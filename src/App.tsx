@@ -4,7 +4,46 @@ import { SocketProvider } from "@/context/SocketContext"
 import AppRoutes from "@/routes/AppRoutes"
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleSwitcher from '@/components/RoleSwitcher';
-...
+import { useEffect, useState } from 'react';
+import { getUserRole } from '@/utils/auth';
+import AdminNav from '@/components/nav/AdminNav';
+import ResponderNav from '@/components/nav/ResponderNav';
+import GuardNav from '@/components/nav/GuardNav';
+import Dashboard from '@/pages/Dashboard';
+
+function App() {
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    const storedRole = getUserRole();
+    setRole(storedRole);
+  }, []);
+
+  const renderNav = () => {
+    switch (role) {
+      case 'admin':
+        return <AdminNav />;
+      case 'responder':
+        return <ResponderNav />;
+      case 'guard':
+        return <GuardNav />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div>
+      {renderNav()}
+      <main className="mt-6">
+        <Dashboard />
+      </main>
+    </div>
+  );
+}
+
+export default App;
+
 <RoleSwitcher />
 
 <Routes>
