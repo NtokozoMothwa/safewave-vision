@@ -38,6 +38,8 @@ const { showToast } = useToast();
                 onChange={(e) => handleAssign(incident.id, e.target.value)}
                 defaultValue=""
               >
+                showToast(`Responder ${selectedResponder?.name} assigned to incident in ${selectedZone}`);
+
                 <option value="" disabled>
                   Select Responder
                 </option>
