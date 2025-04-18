@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useToast } from '@/hooks/useToast';
 
 const responders = ['Unit 45', 'Unit 32', 'Drone A3', 'Medic 19'];
 const activeIncidents = [
@@ -8,6 +9,7 @@ const activeIncidents = [
 
 const ResponderAssignPanel: React.FC = () => {
   const [assignments, setAssignments] = useState<{ [key: string]: string }>({});
+const { showToast } = useToast();
 
   const handleAssign = (incidentId: string, responder: string) => {
     setAssignments({ ...assignments, [incidentId]: responder });
