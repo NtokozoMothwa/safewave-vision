@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import socket from '../utils/socket';
 import EmergencyMap from '../components/EmergencyMap';
 import { getNearbyPartners } from "../utils/partners";
+import { dispatchResponder } from "../utils/dispatch";
 
 
 // Inside the return JSX
@@ -25,6 +26,7 @@ function Dashboard() {
   };
 
   const [partners, setPartners] = useState([]);
+const [dispatched, setDispatched] = useState<any>(null);
 
 useEffect(() => {
   const fetchPartners = async () => {
@@ -42,6 +44,10 @@ useEffect(() => {
     console.log('🚨 New Emergency Alert:', data);
     setEmergencyAlerts((prev) => [data, ...prev]);
   });
+const handleDispatch = async (id: string) => {
+  const result: any = await dispatchResponder(id);
+  setDispatched(result);
+};
 
   return () => {
     socket.off('emergency-alert');
@@ -65,7 +71,13 @@ useEffect(() => {
         <p className="font-medium">{partner.name}</p>
         <p>Distance: {partner.distance}</p>
         <p>ETA: {partner.eta}</p>
-        <p>Status: <span className="text-green-600">{partner.status}</span></p>
+<p>Status: <span className="text-green-600">{partner.status}</span></p>
+<button
+  className="mt-1 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+  onClick={() => handleDispatch(partner.id)}
+>
+  Dispatch
+</button>
       </li>
     ))}
   </ul>
@@ -133,6 +145,13 @@ export default function Dashboard() {
     </div>
   )
 }
+  {dispatched && (
+  <div className="mt-6 p-4 bg-green-100 text-green-800 rounded">
+    <p>{dispatched.message}</p>
+    <p>ETA: {dispatched.eta}</p>
+  </div>
+)}
+
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   <AlertsPanel />
   <ThreatMonitor /> {/* ← Add here */}
