@@ -3,6 +3,9 @@ import { AuthProvider } from "@/context/AuthContext"
 import { SocketProvider } from "@/context/SocketContext"
 import AppRoutes from "@/routes/AppRoutes"
 import ProtectedRoute from '@/components/ProtectedRoute';
+import RoleSwitcher from '@/components/RoleSwitcher';
+...
+<RoleSwitcher />
 
 <Routes>
   <Route path="/dashboard" element={
