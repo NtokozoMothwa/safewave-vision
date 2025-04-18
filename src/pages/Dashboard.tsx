@@ -165,3 +165,7 @@ export default function Dashboard() {
 </div>
 <IncidentHistory />
 <ResponderAssignPanel />
+
+  socket.on('incident:new', (incidentData) => {
+  showToast(`New incident detected in ${incidentData.zone}`);
+});
