@@ -14,6 +14,7 @@ import EmergencyMap from '../components/EmergencyMap';
 import { getNearbyPartners } from "../utils/partners";
 import { dispatchResponder } from "../utils/dispatch";
 import RouteMap from "../components/RouteMap";
+import IncidentHistory from '@/components/IncidentHistory';
 
 
 // Inside the return JSX
@@ -157,3 +158,4 @@ export default function Dashboard() {
   <AlertsPanel />
   <ThreatMonitor /> {/* ← Add here */}
 </div>
+<IncidentHistory />
