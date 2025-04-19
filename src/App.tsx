@@ -10,6 +10,9 @@ import AdminNav from '@/components/nav/AdminNav';
 import ResponderNav from '@/components/nav/ResponderNav';
 import GuardNav from '@/components/nav/GuardNav';
 import Dashboard from '@/pages/Dashboard';
+import TriggerPanel from '@/pages/TriggerPanel';
+
+<Route path="/trigger" element={<TriggerPanel />} />
 
 function App() {
   const [role, setRole] = useState('');
