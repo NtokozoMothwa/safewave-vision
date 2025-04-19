@@ -23,6 +23,64 @@ import { getUserRole } from '@/utils/auth';
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
 import ResponderDashboard from '@/components/dashboards/ResponderDashboard';
 import GuardDashboard from '@/components/dashboards/GuardDashboard';
+import { useEffect, useState } from 'react';
+import socket from '@/utils/socket';
+
+const Dashboard = () => {
+  const [messages, setMessages] = useState<string[]>([]);
+  const [incident, setIncident] = useState<string | null>(null);
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+
+    // Common alert handler
+    socket.on('alert', (msg: string) => {
+      setMessages(prev => [...prev, msg]);
+    });
+
+    // Role-specific incidents
+    if (role === 'responder') {
+      socket.on('incident:responder', (data: string) => {
+        setIncident(`🚨 New Incident: ${data}`);
+      });
+    }
+
+    if (role === 'guard') {
+      socket.on('incident:guard', (data: string) => {
+        setIncident(`🛡️ Guard Alert: ${data}`);
+      });
+    }
+
+    if (role === 'admin') {
+      socket.on('admin:log', (log: string) => {
+        setMessages(prev => [...prev, `📋 Log: ${log}`]);
+      });
+    }
+
+    return () => {
+      socket.off('alert');
+      socket.off('incident:responder');
+      socket.off('incident:guard');
+      socket.off('admin:log');
+    };
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h2 className="text-xl font-bold mb-4">Dashboard Feed</h2>
+      
+      {incident && <div className="bg-red-200 p-3 rounded mb-4">{incident}</div>}
+      
+      <ul className="space-y-2">
+        {messages.map((msg, idx) => (
+          <li key={idx} className="bg-gray-100 p-2 rounded">{msg}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default Dashboard;
 
 const Dashboard = () => {
   const role = getUserRole();
