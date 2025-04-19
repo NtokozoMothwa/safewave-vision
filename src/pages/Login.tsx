@@ -1,6 +1,25 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
+import { setUserRole } from '@/utils/auth';
+
+const Login = () => {
+  const handleLogin = (role: string) => {
+    setUserRole(role);
+    window.location.href = '/';
+  };
+
+  return (
+    <div className="p-6 space-y-4">
+      <h2>Select Role:</h2>
+      <button onClick={() => handleLogin('admin')}>Admin</button>
+      <button onClick={() => handleLogin('responder')}>Responder</button>
+      <button onClick={() => handleLogin('guard')}>Guard</button>
+    </div>
+  );
+};
+
+export default Login;
 
 export default function Login() {
   const { login } = useAuth()
