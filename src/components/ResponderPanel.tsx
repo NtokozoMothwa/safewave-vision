@@ -28,13 +28,19 @@ const ResponderPanel = () => {
             <p className="font-bold text-red-600">{alert.type.toUpperCase()} Alert</p>
             <p className="text-gray-800">{alert.message}</p>
             <div className="flex gap-2 mt-2">
-              <Button onClick={() => confirmAlert(alert.id)} className="bg-green-600 hover:bg-green-700 text-white">
-                Confirm
-              </Button>
-              <Button onClick={() => escalateAlert(alert.id)} className="bg-yellow-500 hover:bg-yellow-600 text-white">
-                Escalate
-              </Button>
-            </div>
+  <Button onClick={() => confirmAlert(alert.id)} className="bg-green-600 hover:bg-green-700 text-white">
+    Confirm
+  </Button>
+  <Button onClick={() => escalateAlert(alert.id)} className="bg-yellow-500 hover:bg-yellow-600 text-white">
+    Escalate
+  </Button>
+  <Button
+    onClick={() => jumpToLocation(alert.latitude, alert.longitude)}
+    className="bg-blue-600 hover:bg-blue-700 text-white"
+  >
+    Locate
+  </Button>
+</div>
           </div>
         ))
       )}
