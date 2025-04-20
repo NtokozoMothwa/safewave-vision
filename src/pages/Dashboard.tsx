@@ -27,11 +27,15 @@ import { useEffect, useState } from 'react';
 import socket from '@/utils/socket';
 import { SmartAlertDisplay } from '@/components/alerts/SmartAlertDisplay';
 import ResponderPanel from '@/components/ResponderPanel';
+import MapView from '@/components/MapView';
 
 ...
 
 <ResponderPanel />
 <SmartAlertDisplay />
+<MapView alerts={alerts} />
+
+const { alerts } = useSmartAlert();
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<string[]>([]);
