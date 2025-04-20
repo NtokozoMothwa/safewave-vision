@@ -26,9 +26,11 @@ import GuardDashboard from '@/components/dashboards/GuardDashboard';
 import { useEffect, useState } from 'react';
 import socket from '@/utils/socket';
 import { SmartAlertDisplay } from '@/components/alerts/SmartAlertDisplay';
+import ResponderPanel from '@/components/ResponderPanel';
 
 ...
 
+<ResponderPanel />
 <SmartAlertDisplay />
 
 const Dashboard = () => {
