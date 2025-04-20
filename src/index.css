@@ -23,3 +23,7 @@ body {
   background-color: rgba(100, 116, 139, 0.4);
   border-radius: 4px;
 }
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
