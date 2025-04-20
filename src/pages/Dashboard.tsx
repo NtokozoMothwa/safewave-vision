@@ -25,6 +25,11 @@ import ResponderDashboard from '@/components/dashboards/ResponderDashboard';
 import GuardDashboard from '@/components/dashboards/GuardDashboard';
 import { useEffect, useState } from 'react';
 import socket from '@/utils/socket';
+import { SmartAlertDisplay } from '@/components/alerts/SmartAlertDisplay';
+
+...
+
+<SmartAlertDisplay />
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<string[]>([]);
