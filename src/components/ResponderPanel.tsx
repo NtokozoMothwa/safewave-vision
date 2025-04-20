@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSmartAlert } from '@/hooks/useSmartAlert';
 import { Button } from '@/components/ui/button';
+import { jumpToLocation } from '@/utils/map';
 
 const ResponderPanel = () => {
   const { alerts, removeAlert } = useSmartAlert();
