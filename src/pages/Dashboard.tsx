@@ -29,6 +29,13 @@ import { SmartAlertDisplay } from '@/components/alerts/SmartAlertDisplay';
 import ResponderPanel from '@/components/ResponderPanel';
 import MapView from '@/components/MapView';
 
+const responders = [
+  { id: 'r1', name: 'Patrol Alpha', position: [-25.742, 28.189] },
+  { id: 'r2', name: 'Medic Bravo', position: [-25.748, 28.195] },
+];
+
+<MapView alerts={alerts} responders={responders} />
+
 ...
 
 <ResponderPanel />
