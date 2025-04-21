@@ -6,7 +6,9 @@
     "esModuleInterop": true,
     "strict": true,
     "outDir": "../dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "include": ["**/*"]
 }

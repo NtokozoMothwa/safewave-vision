@@ -7,7 +7,9 @@
     "strict": true,
     "outDir": "./dist",
     "lib": ["es2018", "dom"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "include": ["src", "routes", "utils", "middleware", "index.ts", "socket.ts"]
 }

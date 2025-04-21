@@ -1,5 +1,5 @@
 
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export function generateToken(payload: object) {
