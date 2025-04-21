@@ -1,11 +1,10 @@
+
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { defaultZones } from '@/utils/geozones';
 import { getZoneStatus } from '@/utils/geoUtils';
 import { useEffect, useRef } from 'react';
-
-const zoneStatusRef = useRef<{ [key: string]: string | null }>({});
 
 const DefaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -28,11 +27,28 @@ type Responder = {
 };
 
 type MapProps = {
-  alerts: Alert[];
-  responders: Responder[];
+  alerts?: Alert[];
+  responders?: Responder[];
 };
 
-const MapView = ({ alerts, responders }: MapProps) => {
+const MapView = ({ alerts = [], responders = [] }: MapProps) => {
+  const zoneStatusRef = useRef<{ [key: string]: string | null }>({});
+  
+  useEffect(() => {
+    responders.forEach((responder) => {
+      const status = getZoneStatus(responder.position, defaultZones);
+      const prevZone = zoneStatusRef.current[responder.id];
+
+      if (status.inZone && status.zone?.id !== prevZone) {
+        console.log(`[ZONE ENTRY] ${responder.name} entered ${status.zone?.name}`);
+        zoneStatusRef.current[responder.id] = status.zone?.id;
+      } else if (!status.inZone && prevZone) {
+        console.log(`[ZONE EXIT] ${responder.name} exited ${prevZone}`);
+        zoneStatusRef.current[responder.id] = null;
+      }
+    });
+  }, [responders]);
+
   return (
     <MapContainer center={[-25.7461, 28.1881]} zoom={13} style={{ height: '500px', width: '100%' }}>
       <TileLayer
@@ -52,21 +68,6 @@ const MapView = ({ alerts, responders }: MapProps) => {
           }}
         />
       ))}
-
-      useEffect(() => {
-  responders.forEach((responder) => {
-    const status = getZoneStatus(responder.position, defaultZones);
-    const prevZone = zoneStatusRef.current[responder.id];
-
-    if (status.inZone && status.zone?.id !== prevZone) {
-      console.log(`[ZONE ENTRY] ${responder.name} entered ${status.zone?.name}`);
-      zoneStatusRef.current[responder.id] = status.zone?.id;
-    } else if (!status.inZone && prevZone) {
-      console.log(`[ZONE EXIT] ${responder.name} exited ${prevZone}`);
-      zoneStatusRef.current[responder.id] = null;
-    }
-  });
-}, [responders]);
 
       {/* Alerts */}
       {alerts.map((alert) => (

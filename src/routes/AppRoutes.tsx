@@ -1,18 +1,20 @@
-import { Routes, Route, Navigate } from "react-router-dom"
-import Dashboard from "@/pages/Dashboard"
-import Login from "@/pages/Login"
-import { useAuth } from "@/context/AuthContext"
+
+import { Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "@/pages/Dashboard";
+import Login from "@/pages/Login";
+import { useAuth } from "@/context/AuthContext";
+import ResponderConsole from "@/pages/ResponderConsole";
 
 export default function AppRoutes() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   if (!user) {
     return (
-      <Route path="/responder" element={<ResponderConsole />} />
-
+      <Routes>
+        <Route path="/responder" element={<ResponderConsole />} />
         <Route path="*" element={<Login />} />
       </Routes>
-    )
+    );
   }
 
   return (
@@ -20,5 +22,5 @@ export default function AppRoutes() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
-  )
+  );
 }
