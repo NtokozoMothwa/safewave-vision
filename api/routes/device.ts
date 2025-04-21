@@ -8,7 +8,7 @@ const devices: any[] = [];
 router.post("/register", authenticate, (req: any, res: Response) => {
   const { serial, battery, location } = req.body;
   devices.push({ serial, battery, location, owner: req.user });
-  res.status(200).json({ message: "Device registered." });
+  return res.status(200).json({ message: "Device registered." });
 });
 
 router.post("/heartbeat", authenticate, (req: any, res: Response) => {
@@ -17,9 +17,9 @@ router.post("/heartbeat", authenticate, (req: any, res: Response) => {
   if (device) {
     device.battery = battery;
     device.lastCheckIn = new Date();
-    res.status(200).json({ message: "Status updated." });
+    return res.status(200).json({ message: "Status updated." });
   } else {
-    res.status(404).json({ message: "Device not found." });
+    return res.status(404).json({ message: "Device not found." });
   }
 });
 
