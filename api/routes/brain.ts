@@ -19,7 +19,8 @@ net.train([
 router.post("/predict", (req, res) => {
   const { input } = req.body;
   if (!Array.isArray(input)) {
-    return res.status(400).json({ error: "Input must be an array of numbers." });
+    res.status(400).json({ error: "Input must be an array of numbers." });
+    return;
   }
   const output = net.run(input);
   res.json({ output });
