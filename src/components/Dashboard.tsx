@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { BarChart3, ThermometerSnowflake, MapPin, Navigation, Code, Brain, Shield, Bell, BookOpen } from 'lucide-react';
 import AnimatedTransition from './AnimatedTransition';
@@ -20,20 +19,9 @@ import UserGuidePanel from './UserGuidePanel';
 import ProductEditions from './ProductEditions';
 import ApiStatus from './ApiStatus';
 import IntelligencePanel from "./IntelligencePanel";
-
-// Add this inside your returns JSX:
-<IntelligencePanel
-  lastAlert="Panic button triggered"
-  activeThreats={["Unidentified movement", "Unauthorized device"]}
-  zone="Zone B - Urban District"
-  time={new Date().toLocaleString()}
-  location="Corner of 4th & Pine"
-/>
-
-<ResponderConnect />
-  <IncidentEscalation />
-<ResponderActivity />
-
+import ResponderConnectPanel from './dashboard/ResponderConnectPanel';
+import IncidentEscalationPanel from './dashboard/IncidentEscalationPanel';
+import ResponderActivityPanel from './dashboard/ResponderActivityPanel';
 
 const Dashboard: React.FC = () => {
   return (
@@ -47,6 +35,22 @@ const Dashboard: React.FC = () => {
         </AnimatedTransition>
         
         <div className="mb-6">
+          <IntelligencePanel
+            lastAlert="Panic button triggered"
+            activeThreats={["Unidentified movement", "Unauthorized device"]}
+            zone="Zone B - Urban District"
+            time={new Date().toLocaleString()}
+            location="Corner of 4th & Pine"
+          />
+        </div>
+        
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ResponderConnectPanel />
+          <IncidentEscalationPanel />
+          <ResponderActivityPanel />
+        </div>
+        
+        <div className="mb-6">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">Health Vitals</h2>
             <Link 
@@ -57,14 +61,6 @@ const Dashboard: React.FC = () => {
             </Link>
           </div>
           <VitalsDisplay />
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <FallDetection />
-          <div className="space-y-6">
-            <VoiceCommand />
-            <PanicButton />
-          </div>
         </div>
         
         <div className="mb-6">
