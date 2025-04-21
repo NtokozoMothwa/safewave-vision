@@ -11,30 +11,33 @@ router.post("/register", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const existing = users.find((u) => u.email === email);
   if (existing) {
-    return res.status(400).json({ message: "User exists." });
+    res.status(400).json({ message: "User exists." });
+    return;
   }
 
   const hashed = await bcrypt.hash(password, 10);
   const user = { id: Date.now(), email, password: hashed };
   users.push(user);
   const token = generateToken({ id: user.id, email: user.email });
-  return res.json({ token });
+  res.json({ token });
 });
 
 router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = users.find((u) => u.email === email);
   if (!user) {
-    return res.status(400).json({ message: "User not found." });
+    res.status(400).json({ message: "User not found." });
+    return;
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    return res.status(400).json({ message: "Wrong password." });
+    res.status(400).json({ message: "Wrong password." });
+    return;
   }
 
   const token = generateToken({ id: user.id, email: user.email });
-  return res.json({ token });
+  res.json({ token });
 });
 
 export default router;
