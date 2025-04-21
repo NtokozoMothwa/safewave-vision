@@ -1,8 +1,21 @@
+
 // src/components/GeofenceMap.tsx
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
 import { socket } from "@/lib/socket";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix Leaflet default icon issue
+const defaultIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+L.Marker.prototype.options.icon = defaultIcon;
 
 interface Position {
   lat: number;
@@ -51,10 +64,6 @@ export const GeofenceMap = () => {
           <Marker
             key={pos.id}
             position={[pos.lat, pos.lng]}
-            icon={L.icon({
-              iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149060.png",
-              iconSize: [25, 25],
-            })}
           />
         ))}
       </MapContainer>

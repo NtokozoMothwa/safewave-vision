@@ -1,7 +1,8 @@
+
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:3001"; // Update to production server when ready
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 interface SocketContextProps {
   socket: Socket | null;

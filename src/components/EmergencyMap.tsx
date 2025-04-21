@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { EmergencyAlert } from '../types';
@@ -7,7 +8,7 @@ import L from 'leaflet';
 
 // Optional custom icon
 const emergencyIcon = new L.Icon({
-  iconUrl: '/alert-icon.png', // you can replace this with a real icon path later
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   iconSize: [30, 30],
 });
 
