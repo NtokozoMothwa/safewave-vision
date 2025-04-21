@@ -8,6 +8,7 @@ import { getUserRole } from '@/utils/auth';
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
 import ResponderDashboard from '@/components/dashboards/ResponderDashboard';
 import GuardDashboard from '@/components/dashboards/GuardDashboard';
+// You may need to import NotificationToast if you use it.
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<string[]>([]);
@@ -16,12 +17,10 @@ const Dashboard = () => {
   const role = getUserRole();
 
   useEffect(() => {
-    // Common alert handler
     socket.on('alert', (msg: string) => {
       setMessages(prev => [...prev, msg]);
     });
 
-    // Role-specific incidents
     if (role === 'responder') {
       socket.on('incident:responder', (data: string) => {
         setIncident(`🚨 New Incident: ${data}`);
@@ -68,7 +67,7 @@ const Dashboard = () => {
             <MapView />
             <AlertList />
             {incident && <div className="bg-red-200 p-3 rounded mb-4">{incident}</div>}
-            
+
             <div className="mt-4">
               <h2 className="text-xl font-bold mb-4">Dashboard Feed</h2>
               <ul className="space-y-2">
@@ -77,8 +76,9 @@ const Dashboard = () => {
                 ))}
               </ul>
             </div>
-            
-            {visible && <NotificationToast message={message} onClose={() => {}} />}
+
+            {/* If NotificationToast is used, uncomment it and make sure it's imported */}
+            {/* {visible && <NotificationToast message={message} onClose={() => {}} />} */}
           </div>
         );
     }
