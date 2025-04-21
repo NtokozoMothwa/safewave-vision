@@ -1,6 +1,6 @@
 
 import { Server } from "socket.io";
-import * as http from "http";
+import http from "http";
 
 let io: Server;
 

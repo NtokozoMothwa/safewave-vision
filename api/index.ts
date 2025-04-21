@@ -1,49 +1,56 @@
 
 import express from "express";
-import * as http from "http";
+import http from "http";
 import { Server } from "socket.io";
-import { initSocket } from "./socket"; 
-import brainRoutes from "./routes/brain";
 import cors from "cors";
+import alertRoutes from "./routes/alert";
+import authRoutes from "./routes/auth";
+import deviceRoutes from "./routes/device";
+import threatRoutes from "./routes/threat";
+import brainRoutes from "./routes/brain";
 
 const app = express();
 const server = http.createServer(app);
 
-// Enable CORS for your frontend
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-// Initialize Socket.IO server
+// Routes
+app.use("/alerts", alertRoutes);
+app.use("/auth", authRoutes);
+app.use("/devices", deviceRoutes);
+app.use("/threat", threatRoutes);
+app.use("/brain", brainRoutes);
+
+// Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: "*", // adjust this if deploying later
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-// Socket.IO logic
 io.on("connection", (socket) => {
-  console.log("🟢 A user connected");
+  console.log("🟢 Client connected:", socket.id);
 
-  // Emit a test alert every 15 seconds
-  const interval = setInterval(() => {
-    socket.emit("newAlert", { message: "Motion detected near North Gate!" });
-  }, 15000);
+  socket.on("trigger-alert", (data) => {
+    console.log("📢 Broadcasting alert:", data);
+    io.emit("new-alert", data);
+  });
 
   socket.on("disconnect", () => {
-    console.log("🔴 User disconnected");
-    clearInterval(interval);
+    console.log("🔌 Client disconnected:", socket.id);
   });
 });
 
 // Health check
 app.get("/", (_req, res) => {
-  res.send("✅ SafeSphere backend is live!");
+  res.send("✅ SafeSphere API is running!");
 });
 
-app.use("/brain", brainRoutes);
-
 // Start server
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
