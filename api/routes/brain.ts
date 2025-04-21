@@ -1,11 +1,11 @@
 
 import { Router } from "express";
-import brain from "brain.js";
+import * as brainjs from "brain.js";
 
 const router = Router();
 
 // Brain.js neural network: simple demo
-const net = new brain.NeuralNetwork();
+const net = new brainjs.NeuralNetwork();
 
 // Example: simple dataset, learns XOR logic
 net.train([
@@ -26,4 +26,3 @@ router.post("/predict", (req, res) => {
 });
 
 export default router;
-

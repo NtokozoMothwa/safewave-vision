@@ -1,6 +1,8 @@
+
 import express from "express";
-import http from "http";
-import { initSocket } from "./socket"; // 👈 import here
+import * as http from "http";
+import { Server } from "socket.io";
+import { initSocket } from "./socket"; 
 import brainRoutes from "./routes/brain";
 import cors from "cors";
 
