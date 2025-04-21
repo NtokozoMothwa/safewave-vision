@@ -9,7 +9,6 @@ router.post("/register", authenticate, (req: any, res) => {
   const { serial, battery, location } = req.body;
   devices.push({ serial, battery, location, owner: req.user });
   res.status(200).json({ message: "Device registered." });
-  return;
 });
 
 router.post("/heartbeat", authenticate, (req: any, res) => {
@@ -22,7 +21,6 @@ router.post("/heartbeat", authenticate, (req: any, res) => {
   } else {
     res.status(404).json({ message: "Device not found." });
   }
-  return;
 });
 
 export default router;

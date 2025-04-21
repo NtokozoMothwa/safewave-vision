@@ -8,7 +8,6 @@ router.post("/", (req, res) => {
   const { heartRate, oxygenLevel, temperature, locationRiskZone } = req.body;
   const riskScore = scoreUserRisk({ heartRate, oxygenLevel, temperature, locationRiskZone });
   res.status(200).json({ riskScore });
-  return;
 });
 
 export default router;

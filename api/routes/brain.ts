@@ -23,7 +23,6 @@ router.post("/predict", (req, res) => {
   }
   const output = net.run(input);
   res.json({ output });
-  return;
 });
 
 export default router;
