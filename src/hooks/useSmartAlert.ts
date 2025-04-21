@@ -9,8 +9,6 @@ export const useSmartAlert = () => {
     processAlert(data);
     
     // Example of adding an alert to some state
-    // This was an error in the original code - the addAlert function
-    // was called outside of any function body
     const addAlert = (alertData: {
       id: string;
       type: string;
