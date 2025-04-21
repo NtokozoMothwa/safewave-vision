@@ -1,8 +1,8 @@
 
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", (req: Request, res: Response) => {
   const { deviceId, location, vitals } = req.body;
   console.log("🚨 Emergency Alert Received:", { deviceId, location, vitals });
   res.status(200).json({ message: "Alert received." });

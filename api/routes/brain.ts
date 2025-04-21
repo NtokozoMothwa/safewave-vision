@@ -1,5 +1,5 @@
 
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import * as brainjs from "brain.js";
 
 const router = Router();
@@ -15,7 +15,7 @@ net.train([
   { input: [1, 1], output: [0] },
 ]);
 
-router.post("/predict", (req, res) => {
+router.post("/predict", (req: Request, res: Response) => {
   const { input } = req.body;
   if (!Array.isArray(input)) {
     res.status(400).json({ error: "Input must be an array of numbers." });

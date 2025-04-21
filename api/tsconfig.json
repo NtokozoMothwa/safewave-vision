@@ -11,5 +11,5 @@
     "moduleResolution": "node",
     "resolveJsonModule": true
   },
-  "include": ["src", "routes", "utils", "middleware", "index.ts", "socket.ts"]
+  "include": ["src", "routes", "utils", "middleware", "index.ts", "socket.ts", "models"]
 }

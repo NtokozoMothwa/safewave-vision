@@ -1,17 +1,17 @@
 
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { authenticate } from "../middleware/auth";
 const router = Router();
 
 const devices: any[] = [];
 
-router.post("/register", authenticate, (req: any, res) => {
+router.post("/register", authenticate, (req: any, res: Response) => {
   const { serial, battery, location } = req.body;
   devices.push({ serial, battery, location, owner: req.user });
   res.status(200).json({ message: "Device registered." });
 });
 
-router.post("/heartbeat", authenticate, (req: any, res) => {
+router.post("/heartbeat", authenticate, (req: any, res: Response) => {
   const { serial, battery } = req.body;
   const device = devices.find((d) => d.serial === serial);
   if (device) {
