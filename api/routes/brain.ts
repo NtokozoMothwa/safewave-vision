@@ -15,7 +15,6 @@ net.train([
   { input: [1, 1], output: [0] },
 ]);
 
-// POST /brain/predict
 router.post("/predict", (req, res) => {
   const { input } = req.body;
   if (!Array.isArray(input)) {
